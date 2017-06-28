@@ -1,0 +1,78 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_MOD_BY	Bostjan Mihoric	/ccompletion@gmail.com/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	/unofficial modification/
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	/unofficial modification/
+CHECKSUM_LOCKED	amiitool.c	13;"	variable
+CHECKSUM_UNFIXED	amiitool.c	11;"	variable
+GIT_COMMIT_COUNT	gitversion.h	2;"	macro
+GIT_COMMIT_ID	gitversion.h	1;"	macro
+HAVE_UTIL_H	util.h	9;"	macro
+HMAC_POS_DATA	amiibo.c	14;"	macro	file:
+HMAC_POS_DATA	amiibo.c	92;"	local
+HMAC_POS_TAG	amiibo.c	110;"	local
+HMAC_POS_TAG	amiibo.c	15;"	macro	file:
+HMAC_POS_TAG	amiibo.c	88;"	local
+aes	amiibo.c	33;"	local
+amitool_pack	amiitool.c	77;"	function
+amitool_setKeys	amiitool.c	15;"	function
+amitool_setKeysFixed	amiitool.c	52;"	function
+amitool_setKeysUnfixed	amiitool.c	37;"	function
+amitool_unpack	amiitool.c	66;"	function
+bytes	util.c	13;"	local
+cipher	amiibo.c	100;"	local
+ctx	amiibo.c	113;"	local
+dataKeys	amiibo.c	102;"	local
+dataKeys	amiibo.c	73;"	local
+f	amiibo.c	136;"	local
+i	keygen.c	39;"	local
+i	util.c	12;"	local
+internal	amiibo.c	72;"	local
+keys	amiitool.c	9;"	variable	file:
+leadingSeedBytes	keygen.c	26;"	local
+mbedtls_md_info_from_type	amiibo.c	109;"	prototype	file:
+mbedtls_md_info_from_type	amiibo.c	87;"	prototype	file:
+mbedtls_md_info_from_type	amiibo.c	91;"	prototype	file:
+nc_off	amiibo.c	34;"	local
+nfc3d_amiibo_calc_seed	amiibo.c	17;"	function
+nfc3d_amiibo_cipher	amiibo.c	32;"	function
+nfc3d_amiibo_internal_to_tag	amiibo.c	61;"	function
+nfc3d_amiibo_keygen	amiibo.c	25;"	function
+nfc3d_amiibo_load_keys	amiibo.c	135;"	function
+nfc3d_amiibo_pack	amiibo.c	99;"	function
+nfc3d_amiibo_tag_to_internal	amiibo.c	51;"	function
+nfc3d_amiibo_unpack	amiibo.c	71;"	function
+nfc3d_drbg_cleanup	drbg.c	54;"	function
+nfc3d_drbg_generate_bytes	drbg.c	59;"	function
+nfc3d_drbg_init	drbg.c	13;"	function
+nfc3d_drbg_step	drbg.c	33;"	function
+nfc3d_keygen	keygen.c	48;"	function
+nfc3d_keygen_prepare_seed	keygen.c	14;"	function
+nfc3d_version_build	version.c	20;"	function
+nfc3d_version_commit	version.c	16;"	function
+nfc3d_version_fork	version.c	11;"	function
+nonce_counter	amiibo.c	35;"	local
+preparedSeed	keygen.c	49;"	local
+preparedSeedSize	keygen.c	50;"	local
+printhex	util.c	11;"	function
+printhex	util.h	15;"	prototype
+res	amiitool.c	21;"	local
+res	amiitool.c	30;"	local
+rngCtx	drbg.c	62;"	local
+seed	amiibo.c	26;"	local
+sizeof	amiibo.c	109;"	prototype	file:
+sizeof	amiibo.c	87;"	prototype	file:
+sizeof	amiibo.c	91;"	prototype	file:
+start	keygen.c	20;"	local
+stream_block	amiibo.c	36;"	local
+tagKeys	amiibo.c	101;"	local
+tagKeys	amiibo.c	74;"	local
+temp	drbg.c	60;"	local
+x029	amiibo.c	92;"	local
+x1D4	amiibo.c	110;"	local
+x1D4	amiibo.c	88;"	local
+x1DF	amiibo.c	92;"	local
+x34	amiibo.c	110;"	local
+x34	amiibo.c	88;"	local
