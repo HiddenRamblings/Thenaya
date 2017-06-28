@@ -43,6 +43,8 @@ static void printbuf(char *prefix, u8* data, size_t len) {
 #define DnfcStopScanning nfcStopScanning
 
 #else
+	
+//emulate the calls for running in citra
 static Result DnfcStartOtherTagScanning(int a, int b) {
 	return 0;
 }
@@ -89,7 +91,11 @@ Result nfc_readFull(u8 *data, int datalen) {
 
 		u32 kDown = hidKeysDown();
 		
-		if(kDown & KEY_B) break;
+		if(kDown & KEY_B) {
+			ret = -1;
+			printf("Cancelled.\n");
+			break;
+		}
 		
 		ret = DnfcGetTagState(&curstate);
 		if(R_FAILED(ret)) {
@@ -104,15 +110,17 @@ Result nfc_readFull(u8 *data, int datalen) {
 				u8 tagdata[AMIIBO_MAX_SIZE];
 				memset(tagdata, 0, sizeof(tagdata));
 				
+				printf("Reading tag");
+				
 				for(int i=0x00; i<=NTAG_215_LAST_PAGE ;i+=NTAG_FAST_READ_PAGE_COUNT) {
-					printf("Page %d\n", i);
+					printf(".");
 					u8 cmd[] = CMD_FAST_READ(i, NTAG_FAST_READ_PAGE_COUNT);
 					u8 cmdresult[NTAG_FAST_READ_PAGE_COUNT*NTAG_PAGE_SIZE];
-					printbuf("CMD ", cmd, sizeof(cmd));
+					//printbuf("CMD ", cmd, sizeof(cmd));
 					memset(cmdresult, 0, sizeof(cmdresult));
 					size_t resultsize = 0;
 					
-					printf("page start %x end %x\n", cmd[1], cmd[2]);
+					//printf("page start %x end %x\n", cmd[1], cmd[2]);
 					resultsize = NTAG_FAST_READ_PAGE_COUNT*NTAG_PAGE_SIZE;
 					
 					ret = DnfcSendTagCommand(cmd, sizeof(cmd), cmdresult, sizeof(cmdresult), &resultsize, NFC_TIMEOUT);
@@ -129,9 +137,8 @@ Result nfc_readFull(u8 *data, int datalen) {
 					int copycount = sizeof(cmdresult);
 					if (((i * NTAG_PAGE_SIZE) + sizeof(cmdresult)) > sizeof(tagdata))
 						copycount = ((i * NTAG_PAGE_SIZE) + sizeof(cmdresult)) - sizeof(tagdata);
-					printf(">%d ", copycount);
 					memcpy(&tagdata[i * NTAG_PAGE_SIZE], cmdresult, copycount);
-					printbuf("result", cmdresult, resultsize); 
+					//printbuf("result", cmdresult, resultsize); 
 				}
 				if (ret == 0) {
 					memcpy(data, tagdata, sizeof(tagdata));
@@ -142,6 +149,7 @@ Result nfc_readFull(u8 *data, int datalen) {
 		}
 	}
 	
+	printf("\n");
 	DnfcStopScanning();
 	return ret;
 }
@@ -172,7 +180,11 @@ Result nfc_readBlock(int pageId, u8 *data, int datalen) {
 
 		u32 kDown = hidKeysDown();
 		
-		if(kDown & KEY_B) break;
+		if(kDown & KEY_B) {
+			ret = -1;
+			printf("Cancelled.\n");
+			break;
+		}
 		
 		ret = DnfcGetTagState(&curstate);
 		if(R_FAILED(ret))
@@ -222,13 +234,6 @@ static Result writeTag(u8 *data, u8 *PWD, u8 *PACK) {
 	//write normal pages
 	int ret = 0;
 	
-	ret = nfcCmd21(); //seems to put the NFC reader into a continious mode allowing all the requests to go through one session without powering the tag down.
-	
-	if(R_FAILED(ret)) {
-		printf("nfcCmd21 failed : %d\n", R_DESCRIPTION(ret));
-		return ret;
-	}
-
 	printf("Writing normal pages\n");
 	for(int pageId = 0x04; pageId <= 0x81; pageId++) {
 		printf(".");
@@ -243,6 +248,12 @@ static Result writeTag(u8 *data, u8 *PWD, u8 *PACK) {
 	ret = writePage(0x03, &data[0x03 * NTAG_PAGE_SIZE]);
 	if (R_FAILED(ret))
 		return ret;
+
+	ret = nfcCmd21(); //seems to put the NFC reader into a continious mode allowing all the requests to go through one session without powering the tag down.
+	if(R_FAILED(ret)) {
+		printf("nfcCmd21 failed : %d\n", R_DESCRIPTION(ret));
+		return ret;
+	}
 
 	//write PACK
 	printf("Writing PACK\n");
@@ -292,7 +303,7 @@ Result nfc_auth(u8 *PWD) {
 	size_t resultsize = 0;
 	u8 packres[2];
 	int ret = DnfcSendTagCommand(pwdcmd, sizeof(pwdcmd), packres, sizeof(packres), &resultsize, NFC_TIMEOUT);
-	printbuf("pack ", packres, sizeof(packres));
+	//printbuf("pack ", packres, sizeof(packres));
 	if(R_FAILED(ret)) {
 		printf("PWD command failed failed : %d\n", R_DESCRIPTION(ret));
 		return ret;
@@ -327,7 +338,11 @@ Result nfc_write(u8 *data, int datalen, u8 *PWD, int PWDLength) {
 
 		u32 kDown = hidKeysDown();
 		
-		if(kDown & KEY_B) break;
+		if(kDown & KEY_B) {
+			ret = -1;
+			printf("Cancelled.\n");
+			break;
+		}
 		
 		ret = DnfcGetTagState(&curstate);
 		if(R_FAILED(ret)) {

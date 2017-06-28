@@ -124,7 +124,7 @@ void writeToTag() {
 		printf("No tag loaded\n");
 		return;
 	}
-	printf("Place tag on scanner...\n");
+	printf("Place tag on scanner, or press B to cancel.\n");
 	u8 firstPages[NTAG_BLOCK_SIZE];
 	
 	int res = nfc_readBlock(0, firstPages, sizeof(firstPages));
@@ -176,7 +176,7 @@ void writeToTag() {
 }
 
 void dumpTagToFile() {
-	printf("Place tag on scanner...\n");
+	printf("Place tag on scanner, or press B to cancel\n");
 	u8 data[AMIIBO_MAX_SIZE];
 	int res = nfc_readFull(data, sizeof(data));
 	if (res != 0) {
@@ -209,23 +209,33 @@ void dumpTagToFile() {
 }
 
 void menu() {
-	printf("X - Load tag dump.\n");
-	printf("A - Write/Restore to tag.\n");
-	printf("Y - Dump tag to file.\n");
-	printf("B - Quit\n");
+	int refreshMenu = 1;
 	
 	while (aptMainLoop()) {
 		gspWaitForVBlank();
+
+		if (refreshMenu) {
+			printf("X - Load tag dump.\n");
+			if (tag_isLoaded())
+				printf("A - Write to tag.\n");
+			printf("Y - Dump tag to file.\n");
+			printf("B - Quit\n\n");
+			refreshMenu = 0;
+		}
+
 		hidScanInput();
 		u32 kDown = hidKeysDown();
 		
-		if (kDown & KEY_X)
+		if (kDown & KEY_X) {
 			loadDump();
-		else if (kDown & KEY_A)
+			refreshMenu = 1;
+		} else if (kDown & KEY_A) {
 			writeToTag();
-		else if (kDown & KEY_Y)
+			refreshMenu = 1;
+		} else if (kDown & KEY_Y) {
 			dumpTagToFile();
-		else if (kDown & KEY_B)
+			refreshMenu = 1;
+		} else if (kDown & KEY_B)
 			break;
 	}
 }
