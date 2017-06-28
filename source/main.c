@@ -313,27 +313,52 @@ void writeToTag() {
 	}
 	printf("Place tag on scanner...\n");
 	u8 firstPages[NTAG_BLOCK_SIZE];
+	
 	int res = nfc_readBlock(0, firstPages, sizeof(firstPages));
 	if (res != 0) {
 		printf("Failed to get UID: %d\n", res);
 		return;
 	}
+	printf("Got new UID\n");
 	res = tag_setUid(firstPages, 9);
 	if (res != TAG_ERR_OK) {
 		printf("Failed to update UID: %d\n", res);
 		return;
 	}
+	printf("Encrypting...\n");
 	u8 data[AMIIBO_MAX_SIZE];
 	res = tag_getTag(data, sizeof(data));
 	if (res != TAG_ERR_OK) {
 		printf("Failed to encrypt tag: %d\n", res);
 		return;
 	}
-	res = writeFile("sdmc://amiibo/out.bin", data, sizeof(data));
+	/*
+	printf("Backup...\n");
+	res = writeFile("sdmc:/amiibo/out.bin", data, sizeof(data));
 	if (res <0)
 		printf("Write to disk failed: %d\n", res);
+	*/
 	
+	u8 uid[7];
+	res = tag_getUidFromBlock(firstPages, sizeof(firstPages), uid, sizeof(uid));
+	if (res != TAG_ERR_OK) {
+		printf("Failed to get uid: %d\n", res);
+		return;
+	}
 	
+	printf("Calculating password...\n");
+	u8 pwd[NTAG_PAGE_SIZE];
+	res = tag_calculatePassword(uid, sizeof(uid), pwd, sizeof(pwd));
+	if (res != TAG_ERR_OK) {
+		printf("Failed to calculate pwd: %d\n", res);
+		return;
+	}
+	
+	printf("Writing tag...\n");
+	res = nfc_write(data, sizeof(data), pwd, sizeof(pwd));
+	if (res != 0) {
+		printf("nfc write failed %d\n", res);
+	}
 	printf("finished\n");
 }
 

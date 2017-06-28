@@ -26,4 +26,5 @@ int tag_setTag(u8 *data, int datalength);
 int tag_isValid(u8 *data, int size);
 int tag_setUid(u8* uid, int uidlen);
 int tag_getTag(u8 *data, int size);
+int tag_getUidFromBlock(u8 *data, int size, u8 *uid, int uidsize);
 int tag_calculatePassword(u8 *uuid, int uuidlen, u8 *pwd, int pwdlen);

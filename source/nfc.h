@@ -8,4 +8,4 @@
 
 Result nfc_readFull(u8 *data, int datalen);
 Result nfc_readBlock(int pageId, u8 *data, int datalen); //reads four pages
-Result nfc_write(u8 *data, int datalen, u8 *password, int passwordLength, u8 *respone, int responeLength);
+Result nfc_write(u8 *data, int datalen, u8 *PWD, int PWDLength);
