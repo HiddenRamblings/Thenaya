@@ -291,7 +291,7 @@ Result nfc_auth(u8 *PWD) {
 	u8 pwdcmd[] = CMD_AUTH(PWD); //auth
 	size_t resultsize = 0;
 	u8 packres[2];
-	ret = DnfcSendTagCommand(pwdcmd, sizeof(pwdcmd), packres, sizeof(packres), &resultsize, NFC_TIMEOUT);
+	int ret = DnfcSendTagCommand(pwdcmd, sizeof(pwdcmd), packres, sizeof(packres), &resultsize, NFC_TIMEOUT);
 	printbuf("pack ", packres, sizeof(packres));
 	if(R_FAILED(ret)) {
 		printf("PWD command failed failed : %d\n", R_DESCRIPTION(ret));
