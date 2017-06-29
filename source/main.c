@@ -243,7 +243,14 @@ void menu() {
 void start() {
 	if (!loadKeys())
 		return;
-	Result ret = nfcInit(NFC_OpType_RawNFC);
+	Result ret;
+	while (1) {
+		ret = nfcInit(NFC_OpType_RawNFC);
+		if (!R_FAILED(ret))
+			break;
+		if (R_LEVEL(ret) != RL_TEMPORARY)
+			break;
+	}
 	if(R_FAILED(ret)) {
 		printf("nfcInit() failed: 0x%08x.\n", (unsigned int)ret);
 		return;
