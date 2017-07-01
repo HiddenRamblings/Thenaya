@@ -34,7 +34,7 @@ DATA		:=	data
 INCLUDES	:=	include amitool/include
 #ROMFS		:=	romfs
 APP_TITLE   := Thenaya
-APP_DESCRIPTION := Amiibo Maker (Alpha 0.1)
+APP_DESCRIPTION := Amiibo Maker (Alpha 0.3)
 APP_AUTHOR := HiddenRambler
 
 #---------------------------------------------------------------------------------
