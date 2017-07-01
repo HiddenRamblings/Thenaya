@@ -22,6 +22,12 @@
 
 #define NTAG_215_LAST_PAGE 0x86
 
+static bool new3ds_flag = false;
+
+void nfc_init() {
+	APT_CheckNew3DS(&new3ds_flag);
+}
+
 static void printbuf(char *prefix, u8* data, size_t len) {
 	char bufstr[len*3 + 3];
 	memset(bufstr, 0, sizeof(bufstr));
@@ -70,17 +76,128 @@ static void DnfcStopScanning() {
 }
 #endif
 
+//workaround for bug in libctru. should be fixed there.
+static Result NFC_StartCommunication(void)
+{
+	Handle nfcHandle = nfcGetSessionHandle();
+	Result ret=0;
+	u32* cmdbuf=getThreadCommandBuffer();
+
+	cmdbuf[0]=IPC_MakeHeader(0x3,0,0); // 0x30000
+
+	if(R_FAILED(ret = svcSendSyncRequest(nfcHandle)))return ret;
+	ret = cmdbuf[1];
+
+	return ret;
+}
+
+static Result NFC_StopCommunication(void)
+{
+	Handle nfcHandle = nfcGetSessionHandle();
+	Result ret=0;
+	u32* cmdbuf=getThreadCommandBuffer();
+
+	cmdbuf[0]=IPC_MakeHeader(0x4,0,0); // 0x40000
+
+	if(R_FAILED(ret = svcSendSyncRequest(nfcHandle)))return ret;
+	ret = cmdbuf[1];
+
+	return ret;
+}
+
+static Result NFC_CommunicationGetStatus(u8 *out)
+{
+	Handle nfcHandle = nfcGetSessionHandle();
+	Result ret=0;
+	u32* cmdbuf=getThreadCommandBuffer();
+
+	cmdbuf[0]=IPC_MakeHeader(0xF,0,0); // 0xF0000
+
+	if(R_FAILED(ret = svcSendSyncRequest(nfcHandle)))return ret;
+	ret = cmdbuf[1];
+
+	if(R_SUCCEEDED(ret) && out)*out = cmdbuf[2];
+
+	return ret;
+}
+
+static Result NFC_CommunicationGetResult(Result *out)
+{
+	Handle nfcHandle = nfcGetSessionHandle();
+	Result ret=0;
+	u32* cmdbuf=getThreadCommandBuffer();
+
+	cmdbuf[0]=IPC_MakeHeader(0x12,0,0); // 0x120000
+
+	if(R_FAILED(ret = svcSendSyncRequest(nfcHandle)))return ret;
+	ret = cmdbuf[1];
+
+	if(R_SUCCEEDED(ret) && out)*out = cmdbuf[2];
+
+	return ret;
+}
+
+Result nfcStartComms() {
+	Result ret = 0;
+	if (new3ds_flag) return ret;
+	
+	ret = NFC_StartCommunication();
+	if(R_FAILED(ret)) {
+		printf("Failed to initialise NFC adapter: 0x%08x.\n", (unsigned int)ret);
+		return ret;
+	};
+	while(1) {
+		u8 status = 0;
+		ret = NFC_CommunicationGetStatus(&status);
+		if(R_FAILED(ret)) {
+			printf("Failed to initialise NFC adapter (getstatus=0x%08x).\n", (unsigned int)ret);
+		}
+
+		if(status==1)//"Attempting to initialize Old3DS NFC adapter communication."
+		{
+			svcSleepThread(1000000*100);
+			continue;
+		}
+		else if(status==2)//"Old3DS NFC adapter communication initialization successfully finished."
+		{
+			break;
+		}
+
+		//An error occured with Old3DS NFC-adapter communication initialization.
+		Result ret2;
+		ret = NFC_CommunicationGetResult(&ret2);
+		if(R_FAILED(ret)) {
+			printf("Failed to initialise NFC adapter (getstatus=0x%08x).\n", (unsigned int)ret);
+			return ret;
+		}
+
+		printf("Failed to initialise NFC adapter (getstatus=0x%08x).\n", (unsigned int)ret2);
+		return ret2;
+	}
+	return ret;
+}
+
+void nfcStopComms() {
+	if (new3ds_flag);
+	
+	NFC_StopCommunication();
+}
+
 Result nfc_readFull(u8 *data, int datalen) {
 	if (datalen < NTAG_PAGE_SIZE * 4) {
 		return -1;
 	}
 	Result ret=0;
+	
+	ret = nfcStartComms();
+	if (R_FAILED(ret))
+		return ret;
 
 	NFC_TagState prevstate, curstate;
 
-	ret = DnfcStartOtherTagScanning(NFC_STARTSCAN_DEFAULTINPUT, 0x01);
+	ret = DnfcStartOtherTagScanning(NFC_STARTSCAN_DEFAULTINPUT, 0x0F);
 	if(R_FAILED(ret)) {
-		printf("StartOtherTagScanning() failed.\n");
+		printf("StartOtherTagScanning() failed: 0x%08x.\n", (unsigned int)ret);
 		return ret;
 	}
 
@@ -101,6 +218,7 @@ Result nfc_readFull(u8 *data, int datalen) {
 		if(R_FAILED(ret)) {
 			printf("nfcGetTagState() failed.\n");
 			DnfcStopScanning();
+			nfcStopComms();
 			return ret;
 		}
 		
@@ -151,6 +269,7 @@ Result nfc_readFull(u8 *data, int datalen) {
 	
 	printf("\n");
 	DnfcStopScanning();
+	nfcStopComms();
 	return ret;
 }
 
@@ -162,16 +281,21 @@ Result nfc_readBlock(int pageId, u8 *data, int datalen) {
 		return -1;
 	
 	Result ret=0;
+	ret = nfcStartComms();
+	if (R_FAILED(ret))
+		return ret;
 	
 	memset(data, 0, datalen);
 
 	NFC_TagState prevstate, curstate;
 
-	ret = DnfcStartOtherTagScanning(NFC_STARTSCAN_DEFAULTINPUT, 0x01);
+	ret = DnfcStartOtherTagScanning(NFC_STARTSCAN_DEFAULTINPUT, 0x0F);
 	if(R_FAILED(ret)) {
 		printf("StartOtherTagScanning() failed.\n");
+		nfcStopComms();
 		return ret;
 	}
+	
 
 	prevstate = NFC_TagState_Uninitialized;
 	while (1) {
@@ -191,6 +315,7 @@ Result nfc_readBlock(int pageId, u8 *data, int datalen) {
 		{
 			printf("nfcGetTagState() failed.\n");
 			DnfcStopScanning();
+			nfcStopComms();
 			return ret;
 		}
 		
@@ -215,6 +340,7 @@ Result nfc_readBlock(int pageId, u8 *data, int datalen) {
 	}
 	
 	DnfcStopScanning();
+	nfcStopComms();
 	return ret;
 }
 
@@ -322,12 +448,16 @@ Result nfc_write(u8 *data, int datalen, u8 *PWD, int PWDLength) {
 	if (PWDLength != NTAG_PAGE_SIZE) return -1;
 	
 	Result ret=0;
+	ret = nfcStartComms();
+	if (R_FAILED(ret))
+		return ret;
 	
 	NFC_TagState prevstate, curstate;
 
-	ret = DnfcStartOtherTagScanning(NFC_STARTSCAN_DEFAULTINPUT, 0x01);
+	ret = DnfcStartOtherTagScanning(NFC_STARTSCAN_DEFAULTINPUT, 0x0F);
 	if(R_FAILED(ret)) {
 		printf("StartOtherTagScanning() failed.\n");
+		nfcStopComms();
 		return ret;
 	}
 
@@ -348,6 +478,7 @@ Result nfc_write(u8 *data, int datalen, u8 *PWD, int PWDLength) {
 		if(R_FAILED(ret)) {
 			printf("nfcGetTagState() failed.\n");
 			DnfcStopScanning();
+			nfcStopComms();
 			return ret;
 		}
 		
@@ -362,6 +493,7 @@ Result nfc_write(u8 *data, int datalen, u8 *PWD, int PWDLength) {
 	}
 	
 	DnfcStopScanning();
+	nfcStopComms();
 	printf("\n");
 	return ret;
 }
