@@ -243,20 +243,12 @@ void menu() {
 void start() {
 	if (!loadKeys())
 		return;
-	Result ret;
-	while (1) {
-		ret = nfcInit(NFC_OpType_RawNFC);
-		if (!R_FAILED(ret))
-			break;
-		if (R_LEVEL(ret) != RL_TEMPORARY)
-			break;
-	}
-	printf("a\n");
+	Result ret = nfcInit(NFC_OpType_RawNFC);
 	if(R_FAILED(ret)) {
 		printf("nfcInit() failed: 0x%08x.\n", (unsigned int)ret);
 		return;
 	}
-	
+		
 	menu();
 	nfcExit();
 }
@@ -265,7 +257,7 @@ int main() {
 	gfxInitDefault();
 	consoleInit(GFX_TOP, NULL);
 
-	printf("Thenaya - Amiibo Maker v0.3 (Alpha)\n");
+	printf("Thenaya - Amiibo Maker v0.1 (Alpha)\n");
 	
 	start();
 
