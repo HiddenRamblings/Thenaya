@@ -9,3 +9,5 @@
 Result nfc_readFull(u8 *data, int datalen);
 Result nfc_readBlock(int pageId, u8 *data, int datalen); //reads four pages
 Result nfc_write(u8 *data, int datalen, u8 *PWD, int PWDLength);
+int nfc_init();
+void nfc_exit();

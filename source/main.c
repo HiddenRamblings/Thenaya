@@ -14,6 +14,7 @@
 #include "nfc.h"
 #include "filepicker.h"
 #include "nfc3d/amitool.h"
+#include "ui.h"
 
 void printbuf(char *prefix, u8* data, size_t len);
 
@@ -70,20 +71,24 @@ int writeFile(char *filepath, u8 *data, u32 datasize) {
 #define AMIIBO_DUMP_ROOT "sdmc:/amiibo"
 
 int loadKeys() {
+	uiSelectLog();
 	u8 keybuffer[KEY_FILE_SIZE];
-	printf("Reading key file from %s\n", KEY_FILE_PATH);
+	printf("Reading key file %s\n", KEY_FILE_PATH);
 	int size = readFile(KEY_FILE_PATH, keybuffer, KEY_FILE_SIZE);
 	if (size < 0) {
 		printf("Failed to read key file: %d\n", size);
+		uiUpdateStatus("ERROR");
 		return 0;
 	}
 	if (size != KEY_FILE_SIZE) {
 		printf("Failed to read key file (file size incorrect: %d)\n", size);
+		uiUpdateStatus("ERROR");
 		return 0;
 	}
 	
 	if (tag_setKeys(keybuffer, size) != 0) {
 		printf("Invalid key file");
+		uiUpdateStatus("ERROR");
 		return 0;
 	}
 	
@@ -215,16 +220,14 @@ void menu() {
 		gspWaitForVBlank();
 
 		if (refreshMenu) {
-			printf("X - Load tag dump.\n");
 			if (tag_isLoaded())
-				printf("A - Write to tag.\n");
-			printf("Y - Dump tag to file.\n");
-			printf("B - Quit\n\n");
+				uiShowMenu(MENU_MAIN, KEY_X | KEY_Y | KEY_A | KEY_B);
+			else
+				uiShowMenu(MENU_MAIN, KEY_X | KEY_Y | KEY_B);
 			refreshMenu = 0;
 		}
 
-		hidScanInput();
-		u32 kDown = hidKeysDown();
+		u32 kDown = uiGetKey(KEY_X | KEY_A | KEY_Y | KEY_B);
 		
 		if (kDown & KEY_X) {
 			loadDump();
@@ -240,47 +243,35 @@ void menu() {
 	}
 }
 
-void start() {
-	if (!loadKeys())
-		return;
-	Result ret = nfcInit(NFC_OpType_RawNFC);
-	if(R_FAILED(ret)) {
-		printf("nfcInit() failed: 0x%08x.\n", (unsigned int)ret);
-		return;
-	}
-		
-	menu();
-	nfcExit();
-}
-
 int main() {
-	gfxInitDefault();
-	consoleInit(GFX_TOP, NULL);
-
-	printf("Thenaya - Amiibo Maker v0.1 (Alpha)\n");
+	uiInit();
 	
-	start();
-
-	printf("Press START to exit.\n");
-
-	// wait till START
-	while (aptMainLoop()) {
-		gspWaitForVBlank();
-		hidScanInput();
-
-		u32 kDown = hidKeysDown();
-
-		if (kDown & KEY_START)
-			break;
+	uiUpdateBanner();
+	uiInitStatus();
+	
+	gfxFlushBuffers();
+	gfxSwapBuffers();
+	gspWaitForVBlank();
+	
+	if (loadKeys()) {
+		if (nfc_init()) {
+			menu();
+			nfc_exit();
+		}
 	}
 	
-	//reboot
-	//https://github.com/AlbertoSONIC/3DS_Quick_Reboot/blob/master/source/main.c
+	uiUpdateProgress(0, -1);
+	uiSelectMain();
+	printf("\e[2J\e[H\x1b[7;15HPress Start to exit.");
+
+	uiGetKey(KEY_START);
+	
+	#if 0 //reboot
 	aptInit();
 	APT_HardwareResetAsync();
 	aptExit();
+	#endif
 
-	gfxExit();
+	uiExit();
 	return 0;
 }
-

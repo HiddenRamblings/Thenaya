@@ -34,7 +34,7 @@ static void printbuf(char *prefix, u8* data, size_t len) {
 	printf("%s hex: %s\n", prefix, bufstr);
 }
 
-#if 1
+#if 0
 
 #define DnfcStartOtherTagScanning nfcStartOtherTagScanning
 #define DnfcGetTagState nfcGetTagState
@@ -364,4 +364,16 @@ Result nfc_write(u8 *data, int datalen, u8 *PWD, int PWDLength) {
 	DnfcStopScanning();
 	printf("\n");
 	return ret;
+}
+
+int nfc_init() {
+	Result ret = nfcInit(NFC_OpType_RawNFC);
+	if(R_FAILED(ret)) {
+		printf("nfcInit() failed: 0x%08x.\n", (unsigned int)ret);
+		return 0;
+	}
+	return 1;
+}
+void nfc_exit() {
+	nfcExit();
 }
