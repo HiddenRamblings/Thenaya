@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //result size of a block read (READ command)
 #define NTAG_PAGE_SIZE 4
 #define NTAG_FAST_READ_PAGE_COUNT 15
@@ -11,3 +15,7 @@ Result nfc_readBlock(int pageId, u8 *data, int datalen); //reads four pages
 Result nfc_write(u8 *data, int datalen, u8 *PWD, int PWDLength);
 int nfc_init();
 void nfc_exit();
+
+#ifdef __cplusplus
+}
+#endif

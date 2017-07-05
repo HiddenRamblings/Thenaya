@@ -68,7 +68,8 @@ int writeFile(char *filepath, u8 *data, u32 datasize) {
 
 #define AMIIBO_FILE "sdmc:/linkarcheramiibo.bin"
 
-#define AMIIBO_DUMP_ROOT "sdmc:/amiibo"
+//#define AMIIBO_DUMP_ROOT "sdmc:/amiibo"
+#define AMIIBO_DUMP_ROOT "sdmc:/"
 
 int loadKeys() {
 	uiSelectLog();
@@ -98,7 +99,7 @@ int loadKeys() {
 
 void loadDump() {
 	char filename[PICK_FILE_SIZE];
-	if (!pick_file(filename, AMIIBO_DUMP_ROOT)) {
+	if (!fpPickFile(AMIIBO_DUMP_ROOT, filename, sizeof(filename))) {
 		printf("No file selected\n");
 		return;
 	}

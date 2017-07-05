@@ -1,5 +1,13 @@
 #pragma once
 
-#define PICK_FILE_SIZE 512
+#define PICK_FILE_SIZE 1024
 
-int pick_file(char *picked, const char *path);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int fpPickFile(const char *path, char *selectedFile, unsigned int filenameSize);
+
+#ifdef __cplusplus
+}
+#endif

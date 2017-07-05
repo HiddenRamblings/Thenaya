@@ -2,6 +2,10 @@
 
 #include <3ds.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define TAG_ERR_OK 0
 #define TAG_ERR_INVALID_KEY -1
 #define TAG_ERR_DECRYPT_FAIL -2
@@ -28,3 +32,7 @@ int tag_setUid(u8* uid, int uidlen);
 int tag_getTag(u8 *data, int size);
 int tag_getUidFromBlock(u8 *data, int size, u8 *uid, int uidsize);
 int tag_calculatePassword(u8 *uuid, int uuidlen, u8 *pwd, int pwdlen);
+
+#ifdef __cplusplus
+}
+#endif
