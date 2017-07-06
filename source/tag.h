@@ -20,7 +20,8 @@ extern "C" {
 #define TAG_PWD_LEN 4
 
 //we use the full uid including the checksum bytes
-#define TAG_UID_LENGTH 9
+#define TAG_UID9_LENGTH 9
+#define TAG_UID7_LENGTH 7
 #define TAG_CHAR_ID_LENGTH 8
 
 
@@ -34,6 +35,8 @@ int tag_getTag(u8 *data, int size);
 int tag_getUidFromBlock(u8 *data, int size, u8 *uid, int uidsize);
 int tag_calculatePassword(u8 *uuid, int uuidlen, u8 *pwd, int pwdlen);
 int tag_charIdDataFromTag(u8 *data, int dataLen, u8 *chardata, int chardatalen);
+int tag_getUid7(u8 *uid, int uidlen);
+int tag_getCharIdData(u8 *charData, int charDataLen);
 
 #ifdef __cplusplus
 }

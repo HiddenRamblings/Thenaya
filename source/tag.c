@@ -179,3 +179,34 @@ int tag_charIdDataFromTag(u8 *data, int dataLen, u8 *charData, int charDataLen) 
 	memcpy(charData, &data[0x54], TAG_CHAR_ID_LENGTH);
 	return TAG_ERR_OK;
 }
+
+
+/*
+returns the char id bytes from loaded tag
+*/
+int tag_getCharIdData(u8 *charData, int charDataLen) {
+	if (!amiiboLoaded)
+		return TAG_ERR_NO_TAG_LOADED;
+	if (charDataLen < TAG_CHAR_ID_LENGTH)
+		return TAG_ERR_BUFFER_TOO_SMALL;
+	memcpy(charData, &unpackedData[0x1DC], TAG_CHAR_ID_LENGTH);
+	return TAG_ERR_OK;
+}
+
+/*
+returns 7 byte uid from loaded tag
+*/
+int tag_getUid7(u8 *uid, int uidlen) {
+	if (!amiiboLoaded)
+		return TAG_ERR_NO_TAG_LOADED;
+	if (uidlen < 7)
+		return TAG_ERR_BUFFER_TOO_SMALL;
+	uid[0] = unpackedData[0x1D4];
+	uid[1] = unpackedData[0x1D5];
+	uid[2] = unpackedData[0x1D6];
+	uid[3] = unpackedData[0x1D8];
+	uid[4] = unpackedData[0x1D9];
+	uid[5] = unpackedData[0x1DA];
+	uid[6] = unpackedData[0x1DB];
+	return TAG_ERR_OK;
+}

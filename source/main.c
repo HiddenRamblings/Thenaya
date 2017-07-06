@@ -15,6 +15,7 @@
 #include "filepicker.h"
 #include "nfc3d/amitool.h"
 #include "ui.h"
+#include "amiibolookup.h"
 
 #define KEY_FILE_PATH "sdmc:/amiibo_keys.bin"
 #define KEY_FILE_SIZE 160
@@ -24,7 +25,7 @@
 
 
 void printbuf(char *prefix, u8* data, size_t len);
-void uiShowTagInfo(u8 *charId, u8 *uid);
+void uiShowTagInfo();
 
 void printbuf(char *prefix, u8* data, size_t len) {
 	char bufstr[len*2 + 2];
@@ -118,22 +119,18 @@ void loadDump() {
 		goto END_loadDump;
 	}
 	
-	u8 charId[TAG_CHAR_ID_LENGTH];
-	int res = tag_charIdDataFromTag(tagdata, size, charId, sizeof(charId));
-	if (res != TAG_ERR_OK) {
-		printf("Could not read character id: %0x\n", res);
-		goto END_loadDump;
-	}
-	
-	res = tag_setTag(tagdata, size);
+	int res = tag_setTag(tagdata, size);
 	if (res != TAG_ERR_OK) {
 		printf("Failed to load tag: %d\n", res);
 		goto END_loadDump;
 	}
-	
-	uiShowTagInfo(charId, tagdata);
-	
+	return;
+
 END_loadDump:
+	uiUpdateStatus("ERROR");
+	uiSelectMain();
+	printf("\e[2J\e[H\e[0m\e[5;2HLoad tag file failed.\n   Press A to continue.");
+	uiGetKey(KEY_A);
 	uiUpdateStatus("");
 }
 
@@ -146,26 +143,31 @@ void writeToTag() {
 		printf("No tag loaded\n");
 		return;
 	}
-	printf("Place tag on scanner, or press B to cancel.\n");
+	
+	uiSelectMain();
+	//todo: show title as write to tag / restore tag
+	printf("\e[2J\e[H\e[0m\e[5;2HPlace tag on scanner, or press B to cancel");
+	uiUpdateStatus("Waiting...");
+	uiSelectLog();
 	u8 firstPages[NTAG_BLOCK_SIZE];
 	
 	int res = nfc_readBlock(0, firstPages, sizeof(firstPages));
 	if (res != 0) {
 		printf("Failed to get UID: %d\n", res);
-		return;
+		goto writeToTag_ERROR;
 	}
 	printf("Got new UID\n");
 	res = tag_setUid(firstPages, 9);
 	if (res != TAG_ERR_OK) {
 		printf("Failed to update UID: %d\n", res);
-		return;
+		goto writeToTag_ERROR;
 	}
 	printf("Encrypting...\n");
 	u8 data[AMIIBO_MAX_SIZE];
 	res = tag_getTag(data, sizeof(data));
 	if (res != TAG_ERR_OK) {
 		printf("Failed to encrypt tag: %d\n", res);
-		return;
+		goto writeToTag_ERROR;
 	}
 	/*
 	printf("Backup...\n");
@@ -178,7 +180,7 @@ void writeToTag() {
 	res = tag_getUidFromBlock(firstPages, sizeof(firstPages), uid, sizeof(uid));
 	if (res != TAG_ERR_OK) {
 		printf("Failed to get uid: %d\n", res);
-		return;
+		goto writeToTag_ERROR;
 	}
 	
 	printf("Calculating password...\n");
@@ -186,26 +188,39 @@ void writeToTag() {
 	res = tag_calculatePassword(uid, sizeof(uid), pwd, sizeof(pwd));
 	if (res != TAG_ERR_OK) {
 		printf("Failed to calculate pwd: %d\n", res);
-		return;
+		goto writeToTag_ERROR;
 	}
 	
 	printf("Writing tag...\n");
 	res = nfc_write(data, sizeof(data), pwd, sizeof(pwd));
 	if (res != 0) {
 		printf("nfc write failed %d\n", res);
+		goto writeToTag_ERROR;
 	}
-	printf("finished\n");
+	printf("\e[2J\e[H\e[0m\e[5;2HFinished writing to tag.\n   Press A to continue.");
+	uiGetKey(KEY_A);
+	return;
+	
+writeToTag_ERROR:
+	uiUpdateStatus("ERROR");
+	uiSelectMain();
+	printf("\e[2J\e[H\e[0m\e[5;2HWrite to tag failed.\n   Press A to continue.");
+	uiGetKey(KEY_A);
+	uiUpdateStatus("");
 }
 
 void dumpTagToFile() {
-	printf("Place tag on scanner, or press B to cancel\n");
+	uiSelectMain();
+	//todo: show title as write to tag / restore tag
+	printf("\e[2J\e[H\e[0m\e[5;2HPlace tag on scanner, or press B to cancel");
+	uiUpdateStatus("Waiting...");
 	u8 data[AMIIBO_MAX_SIZE];
+	uiSelectLog();
 	int res = nfc_readFull(data, sizeof(data));
 	if (res != 0) {
 		printf("Scanning failed\n");
-		return;
+		goto dumpTagToFile_ERROR;
 	}
-	printbuf("UID ", data, 8);
 	
 	mkdir(AMIIBO_DUMP_ROOT, 0777);
 	
@@ -223,11 +238,53 @@ void dumpTagToFile() {
 		AMIIBO_DUMP_ROOT, 
 		data[0], data[1], data[2], data[3], data[4], data[5], data[6], //uid
 		year, month, day, hours, minutes);
+	uiUpdateStatus("Writing to file..");
 	printf("Writing to file %s\n", dumpFileName);
 	res = writeFile(dumpFileName, data, sizeof(data));
-	if (res <0)
+	if (res <0) {
 		printf("Write to disk failed: %d\n", res);
-	printf("Finished\n");
+		goto dumpTagToFile_ERROR;
+	}
+	uiUpdateStatus("");
+	uiSelectMain();
+	printf("\e[2J\e[H\e[0m\e[5;2HWrote to file %s\n   Press A to continue.", dumpFileName);
+	uiGetKey(KEY_A);
+	return;
+dumpTagToFile_ERROR:
+	uiUpdateStatus("ERROR");
+	uiSelectMain();
+	printf("\e[2J\e[H\e[0m\e[5;2HSave tag to file failed.\n   Press A to continue.");
+	uiGetKey(KEY_A);
+	uiUpdateStatus("");
+}
+
+void uiShowTagInfo() {
+	u8 charId[TAG_CHAR_ID_LENGTH];
+	int res = tag_getCharIdData(charId, sizeof(charId));
+	if (res != TAG_ERR_OK) {
+		printf("Could not read character id: %02x\n", res);
+		return;
+	}
+	u8 uid7[TAG_UID7_LENGTH];
+	res = tag_getUid7(uid7, sizeof(uid7));
+	if (res != TAG_ERR_OK) {
+		printf("Could not read uid id: %02x\n", res);
+		return;
+	}
+	
+	struct AmiiboIdStruct *charinfo = parseCharData(charId);
+	
+	char name[1024];
+	if (!getNameByAmiiboId(charinfo->amiiboId, name, sizeof(name))) {
+		printf("%0x\n", charinfo->amiiboId);
+		snprintf(name, sizeof(name), "Unknown (%0x%0x%0x%0x%0x%0x%0x%0x)", charId[0], charId[1], charId[2], charId[3], charId[4], charId[5], charId[6], charId[7]);
+	}
+	
+	uiSelectMain();
+	printf("\e[0m\e[5;2HType : \e[1m%s", name);
+	printf("\e[0m\e[7;2HUID  : \e[1m%02x%02x%02x%02x%02x%02x%02x", uid7[0], uid7[1], uid7[2], uid7[3], uid7[4], uid7[5], uid7[6]);
+	
+	return;
 }
 
 u32 showMenu() {
@@ -239,6 +296,10 @@ u32 showMenu() {
 	printf("\e[1;26H Y - Dump Tag to file.");
 	printf("\e[2;26H B - Quit.");
 	uiSelectLog();
+	
+	if (tag_isLoaded()) {
+		uiShowTagInfo();
+	}
 	return uiGetKey(KEY_X | KEY_A | KEY_Y | KEY_B);
 }
 
@@ -255,11 +316,6 @@ void menu() {
 		} else if (kDown & KEY_B)
 			break;
 	}
-}
-
-void uiShowTagInfo(u8 *charId, u8 *uid) {
-	printbuf("orginial uid : ", uid, TAG_UID_LENGTH);
-	printbuf("Char Id: ", charId, TAG_CHAR_ID_LENGTH);
 }
 
 int main() {
