@@ -83,31 +83,7 @@ void uiExit() {
 	gfxExit();
 }
 
-void uiShowMenu(MENU_TYPE type, u32 keys) {
-	consoleSelect(&mainScreen);
-	printf(CLEAR_SCREEN);
-	switch (type) {
-		case MENU_MAIN:
-			if (keys & KEY_Y)
-				printf("\e[1;0H X - Load tag from file.");
-			if (keys & KEY_A)
-				printf("\e[2;0H A - Write/Restore Tag.");
-			if (keys & KEY_Y)
-				printf("\e[1;26H Y - Dump Tag to file.");
-			if (keys & KEY_B)
-				printf("\e[2;26H B - Quit.");
-		break;
-		case MENU_LOAD:
-		break;
-		case MENU_WRITE:
-		break;
-		case MENU_DUMP:
-		break;
-	}
-	consoleSelect(&logScreen);
-}
-
-void clearScreen() {
+void uiClearScreen() {
 	printf("\e[2J\e[H");
 }
 

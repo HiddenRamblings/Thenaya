@@ -16,7 +16,15 @@
 #include "nfc3d/amitool.h"
 #include "ui.h"
 
+#define KEY_FILE_PATH "sdmc:/amiibo_keys.bin"
+#define KEY_FILE_SIZE 160
+
+//#define AMIIBO_DUMP_ROOT "sdmc:/amiibo"
+#define AMIIBO_DUMP_ROOT "sdmc:/"
+
+
 void printbuf(char *prefix, u8* data, size_t len);
+void uiShowTagInfo(u8 *charId, u8 *uid);
 
 void printbuf(char *prefix, u8* data, size_t len) {
 	char bufstr[len*2 + 2];
@@ -63,14 +71,6 @@ int writeFile(char *filepath, u8 *data, u32 datasize) {
 	return writesize;
 }
 
-#define KEY_FILE_PATH "sdmc:/amiibo_keys.bin"
-#define KEY_FILE_SIZE 160
-
-#define AMIIBO_FILE "sdmc:/linkarcheramiibo.bin"
-
-//#define AMIIBO_DUMP_ROOT "sdmc:/amiibo"
-#define AMIIBO_DUMP_ROOT "sdmc:/"
-
 int loadKeys() {
 	uiSelectLog();
 	u8 keybuffer[KEY_FILE_SIZE];
@@ -98,27 +98,43 @@ int loadKeys() {
 }
 
 void loadDump() {
+	uiUpdateStatus("Select file");
 	char filename[PICK_FILE_SIZE];
 	if (!fpPickFile(AMIIBO_DUMP_ROOT, filename, sizeof(filename))) {
 		printf("No file selected\n");
-		return;
+		goto END_loadDump;
 	}
+	uiSelectLog();
 	printf("File selected %s\n", filename);
 	u8 tagdata[AMIIBO_MAX_SIZE];
 	int size = readFile(filename, tagdata, AMIIBO_MAX_SIZE);
 	if (size < 0) {
 		printf("Failed to read key file: %d\n", size);
-		return;
+		goto END_loadDump;
 	}
 	
-	printbuf("orginial uid : ", tagdata, 9);
+	if (!tag_isValid(tagdata, size)) {
+		printf("Not a valid tag file\n");
+		goto END_loadDump;
+	}
 	
-	int res = tag_setTag(tagdata, size);
+	u8 charId[TAG_CHAR_ID_LENGTH];
+	int res = tag_charIdDataFromTag(tagdata, size, charId, sizeof(charId));
+	if (res != TAG_ERR_OK) {
+		printf("Could not read character id: %0x\n", res);
+		goto END_loadDump;
+	}
+	
+	res = tag_setTag(tagdata, size);
 	if (res != TAG_ERR_OK) {
 		printf("Failed to load tag: %d\n", res);
-		return;
+		goto END_loadDump;
 	}
-	printf("Tag dump loaded.\n");
+	
+	uiShowTagInfo(charId, tagdata);
+	
+END_loadDump:
+	uiUpdateStatus("");
 }
 
 void writeToTag() {
@@ -214,34 +230,36 @@ void dumpTagToFile() {
 	printf("Finished\n");
 }
 
+u32 showMenu() {
+	uiSelectMain();
+	uiClearScreen();
+	printf("\e[1;0H X - Load tag from file.");
+	if (tag_isLoaded())
+		printf("\e[2;0H A - Write/Restore Tag.");
+	printf("\e[1;26H Y - Dump Tag to file.");
+	printf("\e[2;26H B - Quit.");
+	uiSelectLog();
+	return uiGetKey(KEY_X | KEY_A | KEY_Y | KEY_B);
+}
+
 void menu() {
-	int refreshMenu = 1;
-	
 	while (aptMainLoop()) {
-		gspWaitForVBlank();
-
-		if (refreshMenu) {
-			if (tag_isLoaded())
-				uiShowMenu(MENU_MAIN, KEY_X | KEY_Y | KEY_A | KEY_B);
-			else
-				uiShowMenu(MENU_MAIN, KEY_X | KEY_Y | KEY_B);
-			refreshMenu = 0;
-		}
-
-		u32 kDown = uiGetKey(KEY_X | KEY_A | KEY_Y | KEY_B);
+		u32 kDown = showMenu();
 		
 		if (kDown & KEY_X) {
 			loadDump();
-			refreshMenu = 1;
-		} else if (kDown & KEY_A) {
+		} else if ((kDown & KEY_A) && tag_isLoaded() && tag_isKeysLoaded()) {
 			writeToTag();
-			refreshMenu = 1;
 		} else if (kDown & KEY_Y) {
 			dumpTagToFile();
-			refreshMenu = 1;
 		} else if (kDown & KEY_B)
 			break;
 	}
+}
+
+void uiShowTagInfo(u8 *charId, u8 *uid) {
+	printbuf("orginial uid : ", uid, TAG_UID_LENGTH);
+	printbuf("Char Id: ", charId, TAG_CHAR_ID_LENGTH);
 }
 
 int main() {

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static u8 unpackedData[AMIIBO_MAX_SIZE];
+static u8 unpackedData[AMIIBO_MAX_SIZE]; //holds the data in internal (unpacked format)
 static int dataLength;
 static int amiiboLoaded = 0;
 static int keysLoaded = 0;
@@ -26,6 +26,9 @@ int tag_isKeysLoaded() {
 	return keysLoaded;
 }
 
+/*
+loads amiibo in tag format, but holds it in internal format
+*/
 int tag_setTag(u8 *data, int size) {
 	amiiboLoaded = 0;
 	memset(unpackedData, 0, AMIIBO_MAX_SIZE);
@@ -52,6 +55,9 @@ int tag_setTag(u8 *data, int size) {
 
 #define PAGED_BYTE(page, index) ((page *4) + index)
 
+/*
+Validates if the data is an amiibo (expects tag format data)
+*/
 int tag_isValid(u8 *data, int size) {
 	// must start with a 0x04.
 	if (data[0x0] != 0x04)
@@ -84,6 +90,9 @@ int tag_isValid(u8 *data, int size) {
 	return 1;
 }
 
+/*
+extracts 7 byte uid from 9 byte uid
+*/
 int tag_getUidFromBlock(u8 *data, int size, u8 *uid, int uidsize) {
 	//uid without checksums (7 bytes), usefull for calculating write password
 	if (size < 8 || uidsize < 7)
@@ -124,6 +133,9 @@ int tag_setUid(u8* uid, int uidlen) {
 	return TAG_ERR_OK;
 }
 
+/*
+returns amiibo data in tag format
+*/
 int tag_getTag(u8 *data, int size) {
 	if (!amiiboLoaded)
 		return TAG_ERR_NO_TAG_LOADED;
@@ -153,5 +165,17 @@ int tag_calculatePassword(u8 *uid, int uidlen, u8 *pwd, int pwdlen) {
 	pwd[2] = 0xAA ^ (uid[3] ^ uid[5]);
 	pwd[3] = 0x55 ^ (uid[4] ^ uid[6]);
 	
+	return TAG_ERR_OK;
+}
+
+/*
+Returns character id bytes from tag format
+*/
+int tag_charIdDataFromTag(u8 *data, int dataLen, u8 *charData, int charDataLen) {
+	if (dataLen < 0x5C)
+		return TAG_ERR_INVALID_SIZE;
+	if (charDataLen < TAG_CHAR_ID_LENGTH)
+		return TAG_ERR_BUFFER_TOO_SMALL;
+	memcpy(charData, &data[0x54], TAG_CHAR_ID_LENGTH);
 	return TAG_ERR_OK;
 }

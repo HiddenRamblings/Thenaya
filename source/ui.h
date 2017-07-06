@@ -15,9 +15,8 @@ void uiUpdateProgress(int value, int maxValue);
 void uiUpdateStatus(char *status);
 void uiUpdateBanner();
 void uiInitStatus();
-void uiShowMenu(MENU_TYPE type, u32 keys);
 u32 uiGetKey(u32 keys);
-void clearScreen();
+void uiClearScreen();
 void uiInit();
 void uiExit();
 
