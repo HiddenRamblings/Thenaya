@@ -1,0 +1,243 @@
+#include <3ds.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/dirent.h>
+
+#include "ui.h"
+#include "filepicker.h"
+#include <list>
+#include <iostream>
+
+using namespace std;
+ 
+class FileInfo {
+	public:
+	char* name;
+	bool isDir;
+	
+	FileInfo(char *name, bool isDir) {
+		int nlen = strlen(name);
+		this->name = new char[nlen+1];
+		strcpy(this->name, name);
+		this->isDir = isDir;
+	}
+	
+	~FileInfo() {
+		delete this->name;
+	}
+};
+
+static bool compareFileInfo(const FileInfo *a, const FileInfo *b) {
+	if (a->isDir && !b->isDir)
+		return true;
+	if (b->isDir && !a->isDir)
+		return false;
+	return (strcasecmp(a->name, b->name) < 0);
+}
+
+static void getParentDir(const char *dir, char *parent) { //parent must be atleast the same length as dir
+	strcpy(parent, dir);
+	int i = strlen(parent)-1;
+	if (parent[i] == '/')
+		parent[i] = '\0';
+	i--;
+	while (i>0 && parent[i] != '/') {
+		parent[i] = '\0';
+		i--;
+	}
+	if (i == 0)
+		strcpy(parent, dir);
+}
+
+static char *appendPath(const char *root, const char *child) { //caller is responsible for deleting result
+	int rootLen = strlen(root);
+	char *name = new char[rootLen + strlen(child)+2];
+	strcpy(name, root);
+	if (root[rootLen-1] != '/') {
+		name[rootLen] = '/';
+		name[rootLen+1] = '\0';
+	}
+	strcat(name, child);
+	return name;
+}
+
+class FileSystem {
+  public:
+	std::list<FileInfo*> files;
+	char *currentDir;
+    FileSystem() {
+    }
+    ~FileSystem() {
+    	clear();
+    }
+	void clear() {
+    	for (auto f : files) {
+    		delete f;
+    	}
+		files.clear();
+		delete currentDir;
+		currentDir = NULL;
+	}
+	
+	bool load(const char *path) {
+		clear();
+		
+		currentDir = new char[strlen(path)+1];
+		strcpy(currentDir, path);
+		DIR *fd;
+		if (NULL == (fd = opendir (path))) return false;
+	 
+		struct dirent *file;
+		while ((file = readdir(fd))) {
+			if (!strcmp (file->d_name, "."))
+				continue;
+			if (!strcmp (file->d_name, ".."))
+				continue;
+	 
+			FileInfo *fileitem = new FileInfo(file->d_name, file->d_type == DT_DIR);
+			files.push_back(fileitem);
+		}
+		
+		files.sort(compareFileInfo);
+		return true;
+	}
+};
+
+class FilePicker {
+	public:
+	FileSystem fs;
+	int maxLines;
+	char *selectedFile;
+	
+	FilePicker(int maxLines) {
+		this->maxLines = maxLines;
+	}
+	
+	~FilePicker() {
+		if (selectedFile != NULL) {
+			delete selectedFile;
+		}
+	}
+	
+	void setPath(const char *path) {
+		fs.load(path);
+	}
+	
+	void renderList(list<FileInfo*>::iterator start, list<FileInfo*>::iterator end, list<FileInfo*>::iterator selected) {
+		clearScreen();
+		printf("\e[0;7m  A - Select   B - Back               Y - Cancel  \e[0m");
+		printf("\e[0m @%.45s\n", fs.currentDir);
+		
+		if (*start == NULL) {
+			printf("   \e[1;31m[EMPTY DIR]");
+			return;
+		}
+		auto f = start;
+		for(int i=0; i<maxLines-1; i++) {
+			if (f == selected) {
+				if ((*f)->isDir)
+					printf("\e[1m=> \e[33;1m[%s]\n", (*f)->name);
+				else
+					printf("\e[1m=> \e[36;1m%s\n", (*f)->name);
+			} else {
+				if ((*f)->isDir)
+					printf("   \e[0;33m[%.43s]\n", (*f)->name);
+				else
+					printf("   \e[0;36m%.45s\n", (*f)->name);
+			}
+			f = std::next(f, 1);
+			if (f == end) return;
+		}
+	}
+	
+	bool show() {
+		uiSelectMain();
+		list<FileInfo*>::iterator begin;
+		list<FileInfo*>::iterator end;
+		list<FileInfo*>::iterator current;
+		list<FileInfo*>::iterator selected;
+		int selectedIndex;
+		
+		bool dirChanged = true;
+		
+		while (1) {
+			if (dirChanged) {
+				begin = fs.files.begin();
+				end = fs.files.end();
+				current = begin;
+				selected = current;
+				selectedIndex = 0;
+				dirChanged = false;
+			}
+			renderList(current, end, selected);
+			u32 key = uiGetKey(KEY_A | KEY_B | KEY_UP | KEY_DOWN);
+			if (key & KEY_DOWN) {
+				auto selectedNext = std::next(selected, 1);
+				if (selectedNext != end) {
+					selected = selectedNext;
+					selectedIndex++;
+					
+					if (selectedIndex > (maxLines / 2)) {
+						auto next = std::next(current, 1);
+						if (next != end)
+							current = next;
+					}
+				}
+				continue;
+			} else if (key & KEY_UP) {
+				if (selected != begin) {
+					selected = std::next(selected, -1);
+					selectedIndex--;
+					
+					if (current != begin)
+						current = std::next(current, -1);
+				}
+				continue;
+			} else if (key & KEY_A) {
+				FileInfo *f = (*selected);
+				if (f != NULL) {
+					if (f->isDir) {
+						char *name = appendPath(fs.currentDir, f->name);
+						setPath(name);
+						delete name;
+						dirChanged = true;
+					} else {
+						char *name = appendPath(fs.currentDir, f->name);
+						selectedFile = name; //name buffer will be deleted by the destructor of this class
+						return true;
+					}
+					
+				}
+			} else if (key == KEY_B) {
+				int size = strlen(fs.currentDir);
+				char *parent = new char[size+1];
+				getParentDir(fs.currentDir, parent);
+				
+				setPath(parent);
+				delete parent;
+				
+				dirChanged = true;
+			}
+
+			if (key & KEY_Y) {
+				return false;
+			}
+		}
+		return false;
+	}
+};
+
+int fpPickFile(const char *path, char *selectedFile, unsigned int filenameSize) {
+	FilePicker fp = FilePicker(24);
+	fp.setPath(path);
+	if (!fp.show())
+		return 0;
+	if (filenameSize < (strlen(fp.selectedFile)+1))
+		return 0;
+	strcpy(selectedFile, fp.selectedFile);
+	return 1;
+}
