@@ -224,6 +224,21 @@ void dumpTagToFile() {
 	
 	mkdir(AMIIBO_DUMP_ROOT, 0777);
 	
+	char tagName[MAX_AMIIBO_NAME];
+	u8 charId[TAG_CHAR_ID_LENGTH];
+	if (tag_charIdDataFromTag(data, sizeof(data), charId, sizeof(charId) != TAG_ERR_OK)) {
+		snprintf(tagName, sizeof(tagName), "%02X%02X%02X%02X%02X%02X%02X", data[0], data[1], data[2], data[3], data[4], data[5], data[6]); //uid
+	} else {
+		struct AmiiboIdStruct *charinfo = parseCharData(charId);
+		
+		if (!getNameByAmiiboId(charinfo->amiiboId, tagName, sizeof(tagName))) {
+			printf("%0x\n", charinfo->amiiboId);
+			snprintf(tagName, sizeof(tagName), "%02X%02X%02X%02X%02X%02X%02X", data[0], data[1], data[2], data[3], data[4], data[5], data[6]); //uid
+		} else {
+			snprintf(tagName, sizeof(tagName), "%02X%02X%02X%02X%02X%02X%02X", data[0], data[1], data[2], data[3], data[4], data[5], data[6]); //uid
+		}
+	}
+	
 	time_t unixTime = time(NULL);
 	struct tm* timestruct = gmtime((const time_t *)&unixTime);
 	int hours = timestruct->tm_hour;
@@ -231,12 +246,12 @@ void dumpTagToFile() {
 	int day = timestruct->tm_mday;
 	int month = timestruct->tm_mon;
 	int year = timestruct->tm_year +1900;
-		
+
 	char dumpFileName[200];
 	snprintf(dumpFileName, sizeof(dumpFileName),
-		"%s/%02X%02X%02X%02X%02X%02X%02X_%02d%02d%02d%02d%02d.bin",
+		"%s/%s_%02d%02d%02d%02d%02d.bin",
 		AMIIBO_DUMP_ROOT, 
-		data[0], data[1], data[2], data[3], data[4], data[5], data[6], //uid
+		tagName, 
 		year, month, day, hours, minutes);
 	uiUpdateStatus("Writing to file..");
 	printf("Writing to file %s\n", dumpFileName);
