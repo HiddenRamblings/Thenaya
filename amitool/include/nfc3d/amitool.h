@@ -1,7 +1,7 @@
 #ifndef _AMITOOL_H_
 #define _AMITOOL_H_
 
-#define AMIIBO_MAX_SIZE 540
+#define AMIIBO_MAX_SIZE 572 
 
 int amitool_setKeys(uint8_t* keydata, int len);
 int amitool_setKeysUnfixed(uint8_t* keydata, int len);
