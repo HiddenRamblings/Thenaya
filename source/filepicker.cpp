@@ -19,15 +19,15 @@ class FileInfo {
 	char* name;
 	bool isDir;
 	
-	FileInfo(char *name, bool isDir) {
-		int nlen = strlen(name);
-		this->name = new char[nlen+1];
-		strcpy(this->name, name);
-		this->isDir = isDir;
+	FileInfo(char *fileName, bool fileIsDir) {
+		int nlen = strlen(fileName);
+		name = new char[nlen+1];
+		strcpy(name, fileName);
+		isDir = fileIsDir;
 	}
 	
 	~FileInfo() {
-		delete this->name;
+		delete [] name;
 	}
 };
 
@@ -69,8 +69,11 @@ class FileSystem {
   public:
 	std::list<FileInfo*> files;
 	char *currentDir;
-    FileSystem() {
-    }
+
+	FileSystem() {
+		currentDir = NULL;
+	}
+	
     ~FileSystem() {
     	clear();
     }
@@ -79,17 +82,18 @@ class FileSystem {
     		delete f;
     	}
 		files.clear();
-		delete currentDir;
+		if (currentDir != NULL)
+			delete [] currentDir;
 		currentDir = NULL;
 	}
 	
 	bool load(const char *path) {
 		clear();
-		
 		currentDir = new char[strlen(path)+1];
 		strcpy(currentDir, path);
+		
 		DIR *fd;
-		if (NULL == (fd = opendir (path))) return false;
+		if (NULL == (fd = opendir(currentDir))) return false;
 	 
 		struct dirent *file;
 		while ((file = readdir(fd))) {
@@ -101,7 +105,7 @@ class FileSystem {
 			FileInfo *fileitem = new FileInfo(file->d_name, file->d_type == DT_DIR);
 			files.push_back(fileitem);
 		}
-		
+
 		files.sort(compareFileInfo);
 		return true;
 	}
@@ -115,11 +119,12 @@ class FilePicker {
 	
 	FilePicker(int maxLines) {
 		this->maxLines = maxLines;
+		selectedFile = NULL;
 	}
 	
 	~FilePicker() {
 		if (selectedFile != NULL) {
-			delete selectedFile;
+			delete [] selectedFile;
 		}
 	}
 	
@@ -128,7 +133,7 @@ class FilePicker {
 	}
 	
 	void renderList(list<FileInfo*>::iterator start, list<FileInfo*>::iterator end, list<FileInfo*>::iterator selected) {
-		clearScreen();
+		uiClearScreen();
 		printf("\e[0;7m  A - Select   B - Back               Y - Cancel  \e[0m");
 		printf("\e[0m @%.45s\n", fs.currentDir);
 		
@@ -203,7 +208,7 @@ class FilePicker {
 					if (f->isDir) {
 						char *name = appendPath(fs.currentDir, f->name);
 						setPath(name);
-						delete name;
+						delete [] name;
 						dirChanged = true;
 					} else {
 						char *name = appendPath(fs.currentDir, f->name);
@@ -218,7 +223,7 @@ class FilePicker {
 				getParentDir(fs.currentDir, parent);
 				
 				setPath(parent);
-				delete parent;
+				delete [] parent;
 				
 				dirChanged = true;
 			}
@@ -232,7 +237,7 @@ class FilePicker {
 };
 
 int fpPickFile(const char *path, char *selectedFile, unsigned int filenameSize) {
-	FilePicker fp = FilePicker(24);
+	FilePicker fp(24);
 	fp.setPath(path);
 	if (!fp.show())
 		return 0;
