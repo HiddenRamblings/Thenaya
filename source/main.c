@@ -68,7 +68,6 @@ int writeFile(char *filepath, u8 *data, u32 datasize) {
 	fclose(f);
 
 	if(writesize!=datasize) return -4;
-
 	return writesize;
 }
 
@@ -162,6 +161,7 @@ void writeToTag() {
 		printf("Failed to update UID: %d\n", res);
 		goto writeToTag_ERROR;
 	}
+	uiUpdateStatus("Encrypting.");
 	printf("Encrypting...\n");
 	u8 data[AMIIBO_MAX_SIZE];
 	res = tag_getTag(data, sizeof(data));
@@ -197,6 +197,10 @@ void writeToTag() {
 		printf("nfc write failed %d\n", res);
 		goto writeToTag_ERROR;
 	}
+
+	uiUpdateStatus("Complete.");
+	uiUpdateProgress(0, -1);
+	uiSelectMain();
 	printf("\e[2J\e[H\e[0m\e[5;2HFinished writing to tag.\n   Press A to continue.");
 	uiGetKey(KEY_A);
 	return;
@@ -221,7 +225,7 @@ void dumpTagToFile() {
 		printf("Scanning failed\n");
 		goto dumpTagToFile_ERROR;
 	}
-	
+	uiUpdateStatus("Saving..");
 	mkdir(AMIIBO_DUMP_ROOT, 0777);
 	
 	char tagName[MAX_AMIIBO_NAME];
@@ -261,6 +265,7 @@ void dumpTagToFile() {
 		goto dumpTagToFile_ERROR;
 	}
 	uiUpdateStatus("");
+	uiUpdateProgress(0, -1);
 	uiSelectMain();
 	printf("\e[2J\e[H\e[0m\e[5;2HWrote to file %s\n   Press A to continue.", dumpFileName);
 	uiGetKey(KEY_A);
@@ -271,6 +276,7 @@ dumpTagToFile_ERROR:
 	printf("\e[2J\e[H\e[0m\e[5;2HSave tag to file failed.\n   Press A to continue.");
 	uiGetKey(KEY_A);
 	uiUpdateStatus("");
+	uiUpdateProgress(0, -1);
 }
 
 void uiShowTagInfo() {

@@ -12,6 +12,7 @@ void uiUpdateProgress(int value, int maxValue) {
 	consoleSelect(&statusScreen);
 	if (maxValue <= 0) {
 		printf("\x1b[1;1H    ");
+		consoleSelect(&logScreen);
 		return;
 	}
 	int perc = value * 100 / maxValue;
@@ -22,18 +23,7 @@ void uiUpdateProgress(int value, int maxValue) {
 
 void uiUpdateStatus(char *status) {
 	consoleSelect(&statusScreen);
-	static int prevLength = 0;
-	int len = strlen(status);
-	char statusText[43];
-	memset(statusText, 0, sizeof(statusText));
-	if (len > 42)
-		len = 42;
-	strncpy(statusText, status, len);
-	if (len < prevLength)
-		printf("\x1b[1;6H%.*s\x1b[1;6H%s", 43, EMPTY_BAR, statusText);
-	else
-		printf("\x1b[1;6H%s", statusText);
-	prevLength = len;
+	printf("\x1b[1;6H%-40.40s", status); //print left justified string max min 40 chars
 	consoleSelect(&logScreen);
 }
 

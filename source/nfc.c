@@ -10,6 +10,7 @@
 #include "nfc.h"
 #include "filepicker.h"
 #include "nfc3d/amitool.h"
+#include "ui.h"
 
 #define NFC_TIMEOUT  200 * 1000000
 
@@ -55,7 +56,8 @@ static Result DnfcGetTagState(NFC_TagState *state) {
 }
 
 static Result DnfcSendTagCommand(u8* command, int cmdlen, u8* dest, int destlen, size_t *readsize, u64 timeout) {
-	printbuf("cmd>", command, cmdlen);
+	//printbuf("cmd>", command, cmdlen);
+	svcSleepThread(200000000);
 	static int i = 0;
 	for(int x = 0; x<destlen; x++) {
 		if (x % 4 == 0) i++;
@@ -107,13 +109,14 @@ Result nfc_readFull(u8 *data, int datalen) {
 		if(curstate!=prevstate) {
 			prevstate = curstate;
 			if(curstate==NFC_TagState_InRange) {
+				uiUpdateStatus("Tag detected.");
 				u8 tagdata[AMIIBO_MAX_SIZE];
 				memset(tagdata, 0, sizeof(tagdata));
 				
 				printf("Reading tag");
-				
 				for(int i=0x00; i<=NTAG_215_LAST_PAGE ;i+=NTAG_FAST_READ_PAGE_COUNT) {
-					printf(".");
+					uiUpdateStatus("Reading.");
+					uiUpdateProgress(i, NTAG_215_LAST_PAGE);
 					u8 cmd[] = CMD_FAST_READ(i, NTAG_FAST_READ_PAGE_COUNT);
 					u8 cmdresult[NTAG_FAST_READ_PAGE_COUNT*NTAG_PAGE_SIZE];
 					//printbuf("CMD ", cmd, sizeof(cmd));
@@ -148,7 +151,7 @@ Result nfc_readFull(u8 *data, int datalen) {
 			}
 		}
 	}
-	
+	uiUpdateProgress(0, -1);
 	printf("\n");
 	DnfcStopScanning();
 	return ret;
@@ -234,9 +237,14 @@ static Result writeTag(u8 *data, u8 *PWD, u8 *PACK) {
 	//write normal pages
 	int ret = 0;
 	
+	int stepCount = 132;
+	int step = 0;
+	uiUpdateStatus("Writing normal pages");
+	uiUpdateProgress(step++, stepCount);
 	printf("Writing normal pages\n");
 	for(int pageId = 0x04; pageId <= 0x81; pageId++) {
 		printf(".");
+		uiUpdateProgress(step++, stepCount);
 		ret = writePage(pageId, &data[pageId * NTAG_PAGE_SIZE]);
 		if (R_FAILED(ret))
 			return ret;
@@ -245,6 +253,8 @@ static Result writeTag(u8 *data, u8 *PWD, u8 *PACK) {
 	
 	//write OTP
 	printf("Writing OTP\n");
+	uiUpdateStatus("Writing OTP");
+	uiUpdateProgress(step++, stepCount);
 	ret = writePage(0x03, &data[0x03 * NTAG_PAGE_SIZE]);
 	if (R_FAILED(ret))
 		return ret;
@@ -257,38 +267,47 @@ static Result writeTag(u8 *data, u8 *PWD, u8 *PACK) {
 
 	//write PACK
 	printf("Writing PACK\n");
+	uiUpdateStatus("Writing PACK");
+	uiUpdateProgress(step++, stepCount);
 	ret = writePage(0x86, PACK);
 	if (R_FAILED(ret))
 		return ret;
 	
 	//write PWD
 	printf("Writing PWD\n");
+	uiUpdateStatus("Writing PWD");
 	ret = writePage(0x85, PWD);
+	uiUpdateProgress(step++, stepCount);
 	if (R_FAILED(ret))
 		return ret;
 	
+	uiUpdateStatus("Writing lock bits");
 	//write LOCK
 	printf("Writing lock bits");
     
 	printf(".");
+	uiUpdateProgress(step++, stepCount);
 	//tag.writePage(2, new byte[]{pages[2 * TagUtil.PAGE_SIZE], pages[(2 * TagUtil.PAGE_SIZE) + 1], (byte) 0x0F, (byte) 0xE0}); //lock bits	
 	ret = writePage(0x02, &data[0x02 * NTAG_PAGE_SIZE]); //static lock bits
 	if (R_FAILED(ret))
 		return ret;
 	
 	printf(".");
+	uiUpdateProgress(step++, stepCount);
 	u8 dynamiclock[] = {0x01, 0x00, 0x0F, 0x00}; //dynamic lock bits.
 	ret = writePage(0x82, dynamiclock);
 	if (R_FAILED(ret))
 		return ret;
 
 	printf(".");
+	uiUpdateProgress(step++, stepCount);
 	u8 config1[] = {0x00, 0x00, 0x00, 0x04}; //config
 	ret = writePage(0x83, config1);
 	if (R_FAILED(ret))
 		return ret;
 	
 	printf(".");
+	uiUpdateProgress(step++, stepCount);
 	u8 config2[] = {0x5F, 0x00, 0x00, 0x00}; //config
 	ret = writePage(0x84, config2);
 	if (R_FAILED(ret))
