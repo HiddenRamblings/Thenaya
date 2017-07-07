@@ -179,7 +179,7 @@ class FilePicker {
 				dirChanged = false;
 			}
 			renderList(current, end, selected);
-			u32 key = uiGetKey(KEY_A | KEY_B | KEY_UP | KEY_DOWN);
+			u32 key = uiGetKey(KEY_A | KEY_B | KEY_Y | KEY_UP | KEY_DOWN);
 			if (key & KEY_DOWN) {
 				auto selectedNext = std::next(selected, 1);
 				if (selectedNext != end) {
@@ -215,9 +215,8 @@ class FilePicker {
 						selectedFile = name; //name buffer will be deleted by the destructor of this class
 						return true;
 					}
-					
 				}
-			} else if (key == KEY_B) {
+			} else if (key & KEY_B) {
 				int size = strlen(fs.currentDir);
 				char *parent = new char[size+1];
 				getParentDir(fs.currentDir, parent);
@@ -226,9 +225,8 @@ class FilePicker {
 				delete [] parent;
 				
 				dirChanged = true;
-			}
-
-			if (key & KEY_Y) {
+			} else if (key & KEY_Y) {
+				printf("Returning\n");
 				return false;
 			}
 		}
