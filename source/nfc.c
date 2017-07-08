@@ -392,6 +392,10 @@ Result nfc_write(u8 *data, int datalen, u8 *PWD, int PWDLength) {
 	return ret;
 }
 
+Result nfc_restore(u8 *data, int datalen, u8 *PWD, int PWDLength) {
+	
+}
+
 int nfc_init() {
 	Result ret = nfcInit(NFC_OpType_RawNFC);
 	if(R_FAILED(ret)) {

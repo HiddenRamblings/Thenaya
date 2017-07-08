@@ -180,6 +180,11 @@ void dumpTagToFile() {
 		printf("Scanning failed\n");
 		goto dumpTagToFile_ERROR;
 	}
+	
+	if (!tag_isValid(data, sizeof(data))) {
+		printf("WARNING: Likely not an amiibo.\n");
+	}
+	
 	uiUpdateStatus("Saving..");
 	mkdir(AMIIBO_DUMP_ROOT, 0777);
 	

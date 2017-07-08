@@ -75,7 +75,7 @@ int amitool_unpack(uint8_t* tag, int taglen, uint8_t* rdata, int rdatalen) {
 }
 
 int amitool_pack(uint8_t* tag, int taglen, uint8_t* rdata, int rdatalen) {
-	if (taglen< NFC3D_AMIIBO_SIZE || rdatalen< NFC3D_AMIIBO_SIZE || taglen < rdatalen)
+	if (taglen< NFC3D_AMIIBO_SIZE || rdatalen< NFC3D_AMIIBO_SIZE || rdatalen < taglen)
 		return 0;
 	
 	memcpy(rdata, tag, taglen); //copy any extra data in source to destination
