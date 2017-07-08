@@ -133,29 +133,31 @@ class FilePicker {
 	}
 	
 	void renderList(list<FileInfo*>::iterator start, list<FileInfo*>::iterator end, list<FileInfo*>::iterator selected) {
-		uiClearScreen();
-		printf("\e[0;7m  A - Select   B - Back               Y - Cancel  \e[0m");
-		printf("\e[0m @%.45s\n", fs.currentDir);
+		printf("\e[0;0H\e[0;7m  A - Select   B - Back               Y - Cancel  \e[0m");
+		printf("\e[0m %-47.47s\n", fs.currentDir);
 		
 		if (*start == NULL) {
-			printf("   \e[1;31m[EMPTY DIR]");
+			printf("   \e[1;31m[%-44.44s]", "EMPTY DIR");
 			return;
 		}
 		auto f = start;
 		for(int i=0; i<maxLines-1; i++) {
+			if (f == end) {
+				printf("%-50.50s", "");
+				continue;
+			}
 			if (f == selected) {
 				if ((*f)->isDir)
-					printf("\e[1m=> \e[33;1m[%s]\n", (*f)->name);
+					printf("\e[1m=> \e[33;1m[%-44.44s]\n", (*f)->name);
 				else
-					printf("\e[1m=> \e[36;1m%s\n", (*f)->name);
+					printf("\e[1m=> \e[36;1m%-46.46s\n", (*f)->name);
 			} else {
 				if ((*f)->isDir)
-					printf("   \e[0;33m[%.43s]\n", (*f)->name);
+					printf("   \e[0;33m[%-44.44s]\n", (*f)->name);
 				else
-					printf("   \e[0;36m%.45s\n", (*f)->name);
+					printf("   \e[0;36m%-46.46s\n", (*f)->name);
 			}
 			f = std::next(f, 1);
-			if (f == end) return;
 		}
 	}
 	
@@ -169,7 +171,7 @@ class FilePicker {
 		
 		bool dirChanged = true;
 		
-		while (1) {
+		while (aptMainLoop()) {
 			if (dirChanged) {
 				begin = fs.files.begin();
 				end = fs.files.end();
