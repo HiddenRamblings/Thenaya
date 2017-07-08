@@ -11,6 +11,9 @@
 #include "filepicker.h"
 #include "nfc3d/amitool.h"
 #include "ui.h"
+#include "util2.h"
+
+#define NFC_EMULATE 0
 
 #define NFC_TIMEOUT  200 * 1000000
 
@@ -23,19 +26,7 @@
 
 #define NTAG_215_LAST_PAGE 0x86
 
-static void printbuf(char *prefix, u8* data, size_t len) {
-	char bufstr[len*3 + 3];
-	memset(bufstr, 0, sizeof(bufstr));
-	for(int pos=0; pos<len; pos++) {
-		snprintf(&bufstr[pos*3], 4, "%02x ", data[pos]);
-		if (pos > 0 && pos % 12 == 0) {
-			bufstr[pos*3+2] = '\n';
-		}
-	}
-	printf("%s hex: %s\n", prefix, bufstr);
-}
-
-#if 0
+#if !NFC_EMULATE
 
 #define DnfcStartOtherTagScanning nfcStartOtherTagScanning
 #define DnfcGetTagState nfcGetTagState
@@ -73,6 +64,14 @@ static void DnfcStopScanning() {
 #endif
 
 Result nfc_readFull(u8 *data, int datalen) {
+	#if NFC_EMULATE
+	
+	readFile("sdmc:/linkarcheramiibo.bin", data, datalen);
+	
+	return 0;
+	
+	#endif
+	
 	if (datalen < NTAG_PAGE_SIZE * 4) {
 		return -1;
 	}
@@ -222,6 +221,13 @@ Result nfc_readBlock(int pageId, u8 *data, int datalen) {
 }
 
 static Result writePage(int pageId, u8 *data) {
+	
+	
+	//debug code:
+	pageId = 0x06;
+	
+	
+	
 	u8 cmd[] = CMD_WRITE(pageId, data);
 	size_t resultsize = 0;
 	u8 buffer[100];
