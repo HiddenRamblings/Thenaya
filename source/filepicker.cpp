@@ -188,10 +188,14 @@ class FilePicker {
 				dirChanged = false;
 			}
 			renderList(current, end, selected);
-			u32 key = uiGetKey(KEY_A | KEY_B | KEY_Y | KEY_UP | KEY_DOWN | KEY_RIGHT | KEY_LEFT);
-			if (key & KEY_DOWN) {
-				auto selectedNext = std::next(selected, 1);
-				if (selectedNext != end) {
+			u32 key = uiGetKey(KEY_A | KEY_B | KEY_Y | KEY_UP | KEY_DOWN | KEY_RIGHT | KEY_LEFT | KEY_L | KEY_R);
+			if (key & KEY_DOWN || key & KEY_R) {
+				int rowcount = (key & KEY_DOWN) ? 1 : 10;
+				for(int i=0; i<rowcount; i++) {
+					auto selectedNext = std::next(selected, 1);
+					if (selectedNext == end) {
+						break;
+					}
 					selected = selectedNext;
 					selectedIndex++;
 					
@@ -202,8 +206,12 @@ class FilePicker {
 					}
 				}
 				continue;
-			} else if (key & KEY_UP) {
-				if (selected != begin) {
+			} else if (key & KEY_UP || key & KEY_L) {
+				int rowcount = (key & KEY_UP) ? 1 : 10;
+				for(int i=0; i<rowcount; i++) {
+					if (selected == begin) {
+						break;
+					}
 					selected = std::next(selected, -1);
 					selectedIndex--;
 					
