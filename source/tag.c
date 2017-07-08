@@ -56,6 +56,16 @@ int tag_setTag(u8 *data, int size) {
 #define PAGED_BYTE(page, index) ((page *4) + index)
 
 /*
+accepts the first 4 pages of a tag (tagformat) and returns true if the lock signature is correct
+*/
+int tag_isLocked(u8 *data, int size) { 
+	if (size < (4 * 4))
+		return 0;
+	
+	return (data[PAGED_BYTE(0x02, 2)] == 0x0F && data[PAGED_BYTE(0x02, 3)] == 0xE0);
+}
+
+/*
 Validates if the data is an amiibo (expects tag format data)
 */
 int tag_isValid(u8 *data, int size) {
@@ -149,7 +159,7 @@ int tag_getTag(u8 *data, int size) {
 	
 	int res = amitool_pack(unpackedData, dataLength, data, size);
 	if (!res) {
-		return TAG_ERR_ENRYPT_FAIL;
+		return TAG_ERR_ENCRYPT_FAIL;
 	}
 	return TAG_ERR_OK;
 }

@@ -110,6 +110,7 @@ void writeToTag() {
 		printf("Failed to get UID: %d\n", res);
 		goto writeToTag_ERROR;
 	}
+	
 	printf("Got new UID\n");
 	res = tag_setUid(firstPages, 9);
 	if (res != TAG_ERR_OK) {
@@ -146,11 +147,22 @@ void writeToTag() {
 		goto writeToTag_ERROR;
 	}
 	
-	printf("Writing tag...\n");
-	res = nfc_write(data, sizeof(data), pwd, sizeof(pwd));
-	if (res != 0) {
-		printf("nfc write failed %d\n", res);
-		goto writeToTag_ERROR;
+	if (tag_isLocked(firstPages, sizeof(firstPages))) {
+		//already an amiibo, write only game data
+		printf("Locked tag. Writing game data..\n");
+		res = nfc_write(data, sizeof(data), pwd, sizeof(pwd), 0);
+		if (res != 0) {
+			printf("nfc write failed %d\n", res);
+			goto writeToTag_ERROR;
+		}
+	} else {
+		//blank tag. write full amiibo
+		printf("Writing to blank tag...\n");
+		res = nfc_write(data, sizeof(data), pwd, sizeof(pwd), 1);
+		if (res != 0) {
+			printf("nfc write failed %d\n", res);
+			goto writeToTag_ERROR;
+		}
 	}
 
 	uiUpdateStatus("Complete.");
