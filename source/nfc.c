@@ -221,13 +221,8 @@ Result nfc_readBlock(int pageId, u8 *data, int datalen) {
 }
 
 static Result writePage(int pageId, u8 *data) {
-	
-	
 	//debug code:
-	pageId = 0x06;
-	
-	
-	
+	//pageId = 0x06;
 	u8 cmd[] = CMD_WRITE(pageId, data);
 	size_t resultsize = 0;
 	u8 buffer[100];
