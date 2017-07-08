@@ -142,6 +142,9 @@ class FilePicker {
 		
 		if (*start == NULL) {
 			printf("   \e[1;31m[%-44.44s]", "EMPTY DIR");
+			for(int i=0; i<maxLines-2; i++) {
+				printf("%-50.50s", "");
+			}
 			return;
 		}
 		auto f = start;
@@ -152,9 +155,9 @@ class FilePicker {
 			}
 			if (f == selected) {
 				if ((*f)->isDir)
-					printf("\e[1m=> \e[33;1m[%-44.44s]\n", (*f)->name);
+					printf("\e[33;1m=> [%-44.44s]\n", (*f)->name);
 				else
-					printf("\e[1m=> \e[36;1m%-46.46s\n", (*f)->name);
+					printf("\e[36;1m=> %-46.46s\n", (*f)->name);
 			} else {
 				if ((*f)->isDir)
 					printf("   \e[0;33m[%-44.44s]\n", (*f)->name);
@@ -185,7 +188,7 @@ class FilePicker {
 				dirChanged = false;
 			}
 			renderList(current, end, selected);
-			u32 key = uiGetKey(KEY_A | KEY_B | KEY_Y | KEY_UP | KEY_DOWN);
+			u32 key = uiGetKey(KEY_A | KEY_B | KEY_Y | KEY_UP | KEY_DOWN | KEY_RIGHT | KEY_LEFT);
 			if (key & KEY_DOWN) {
 				auto selectedNext = std::next(selected, 1);
 				if (selectedNext != end) {
@@ -222,7 +225,17 @@ class FilePicker {
 						return true;
 					}
 				}
-			} else if (key & KEY_B) {
+			} else if (key & KEY_RIGHT) {
+				FileInfo *f = (*selected);
+				if (f != NULL) {
+					if (f->isDir) {
+						char *name = appendPath(fs.currentDir, f->name);
+						setPath(name);
+						delete [] name;
+						dirChanged = true;
+					}
+				}
+			} else if (key & KEY_B || key & KEY_LEFT) {
 				int size = strlen(fs.currentDir);
 				char *parent = new char[size+1];
 				getParentDir(fs.currentDir, parent);
