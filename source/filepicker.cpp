@@ -88,12 +88,14 @@ class FileSystem {
 	}
 	
 	bool load(const char *path) {
+		DIR *fd;
+		if (NULL == (fd = opendir(path))) {
+			return false;
+		}
+
 		clear();
 		currentDir = new char[strlen(path)+1];
 		strcpy(currentDir, path);
-		
-		DIR *fd;
-		if (NULL == (fd = opendir(currentDir))) return false;
 	 
 		struct dirent *file;
 		while ((file = readdir(fd))) {
@@ -105,6 +107,8 @@ class FileSystem {
 			FileInfo *fileitem = new FileInfo(file->d_name, file->d_type == DT_DIR);
 			files.push_back(fileitem);
 		}
+		
+		closedir(fd);
 
 		files.sort(compareFileInfo);
 		return true;
