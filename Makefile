@@ -129,7 +129,7 @@ ifneq ($(ROMFS),)
 	export _3DSXFLAGS += --romfs=$(CURDIR)/$(ROMFS)
 endif
 
-.PHONY: $(BUILD) clean all
+.PHONY: $(BUILD) clean all cia
 
 #---------------------------------------------------------------------------------
 all: $(BUILD)
@@ -144,6 +144,9 @@ clean:
 	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf
 
 
+cia: $(BUILD)
+	@echo making cia
+	@makerom -f cia -o Thenaya.cia -rsf cia.rsf -target t -elf Thenaya.elf -icon icon.png -banner banner.bnr 
 #---------------------------------------------------------------------------------
 else
 
