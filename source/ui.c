@@ -11,30 +11,30 @@ static PrintConsole headerScreen, statusScreen, mainScreen, logScreen;
 void uiUpdateProgress(int value, int maxValue) {
 	consoleSelect(&statusScreen);
 	if (maxValue <= 0) {
-		printf("\x1b[1;1H    ");
+		printf("\e[2;2H    ");
 		consoleSelect(&logScreen);
 		return;
 	}
 	int perc = value * 100 / maxValue;
 	if (perc  > 100) perc = 100;
-	printf("\x1b[1;1H%3d%%", perc);
+	printf("\e[2;2H%3d%%", perc);
 	consoleSelect(&logScreen);
 }
 
 void uiUpdateStatus(char *status) {
 	consoleSelect(&statusScreen);
-	printf("\x1b[1;6H%-40.40s", status); //print left justified string max min 40 chars
+	printf("\e[2;7H%-40.40s", status); //print left justified string max min 40 chars
 	consoleSelect(&logScreen);
 }
 
 void uiUpdateBanner() {
 	consoleSelect(&headerScreen);
 	printf("\e[1;7m\e[2J\e[H"); //invert colors and clear screen
-	printf("\e[0;0HThenaya\e[0;32Hv0.6 [%s]", __DATE__);
+	printf("\e[1;1HThenaya\e[1;33Hv0.6 [%s]", __DATE__);
 	char line[51];
 	memset(line, 0xc4, sizeof(line)-1);
 	line[sizeof(line)-1] = '\0';
-	printf("\e[1;0H\e[1;7m%s", line);
+	printf("\e[2;1H\e[1;7m%s", line);
 	consoleSelect(&logScreen);
 }
 
@@ -43,7 +43,7 @@ void uiInitStatus() {
 	char line[51];
 	memset(line, 0xc4, sizeof(line)-1);
 	line[sizeof(line)-1] = '\0';
-	printf("\e[0;0H%s", line);
+	printf("\e[1;1H%s", line);
 	consoleSelect(&logScreen);
 }
 
