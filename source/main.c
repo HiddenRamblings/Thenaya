@@ -329,9 +329,9 @@ int main() {
 	
 	uiUpdateProgress(0, -1);
 	uiSelectMain();
-	printf("\e[2J\e[H\x1b[7;15HPress Start to exit.");
+	printf("\e[2J\e[H\x1b[7;15HPress any key to exit.");
 
-	uiGetKey(KEY_START);
+	uiGetKey(0xFFFFFF);
 	
 	#if 0 //reboot
 	aptInit();

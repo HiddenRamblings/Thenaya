@@ -9,21 +9,31 @@ static PrintConsole headerScreen, statusScreen, mainScreen, logScreen;
 #define CLEAR_SCREEN "\e[2J\e[H"
 
 void uiUpdateProgress(int value, int maxValue) {
+	static int lastValue = -1;
+	
 	consoleSelect(&statusScreen);
 	if (maxValue <= 0) {
+		lastValue = -1;
 		printf("\e[2;2H    ");
 		consoleSelect(&logScreen);
+		gfxFlushBuffers();
 		return;
 	}
 	int perc = value * 100 / maxValue;
 	if (perc  > 100) perc = 100;
-	printf("\e[2;2H%3d%%", perc);
+	
+	if (lastValue != perc) {
+		value = perc;
+		printf("\e[2;2H%3d%%", perc);
+		gfxFlushBuffers();
+	}
 	consoleSelect(&logScreen);
 }
 
 void uiUpdateStatus(char *status) {
 	consoleSelect(&statusScreen);
 	printf("\e[2;7H%-40.40s", status); //print left justified string max min 40 chars
+	gfxFlushBuffers();
 	consoleSelect(&logScreen);
 }
 
@@ -35,6 +45,7 @@ void uiUpdateBanner() {
 	memset(line, 0xc4, sizeof(line)-1);
 	line[sizeof(line)-1] = '\0';
 	printf("\e[2;1H\e[1;7m%s", line);
+	gfxFlushBuffers();
 	consoleSelect(&logScreen);
 }
 
@@ -44,6 +55,7 @@ void uiInitStatus() {
 	memset(line, 0xc4, sizeof(line)-1);
 	line[sizeof(line)-1] = '\0';
 	printf("\e[1;1H%s", line);
+	gfxFlushBuffers();
 	consoleSelect(&logScreen);
 }
 
@@ -80,7 +92,10 @@ void uiClearScreen() {
 u32 uiGetKey(u32 keys) {
 	// wait till START
 	while (aptMainLoop()) {
+		gfxFlushBuffers();
+		gfxSwapBuffers();
 		gspWaitForVBlank();
+
 		hidScanInput();
 
 		u32 kDown = hidKeysDown();
