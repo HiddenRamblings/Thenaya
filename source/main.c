@@ -83,7 +83,7 @@ void loadDump() {
 END_loadDump:
 	uiUpdateStatus("ERROR");
 	uiSelectMain();
-	printf("\e[2J\e[H\e[0m\e[5;2HLoad tag file failed.\n   Press A to continue.");
+	printf("\e[2J\e[H\e[0m\e[5;2HLoad tag file failed.\n\n   Press A to continue.");
 	uiGetKey(KEY_A);
 	uiUpdateStatus("");
 }
@@ -168,14 +168,14 @@ void writeToTag() {
 	uiUpdateStatus("Complete.");
 	uiUpdateProgress(0, -1);
 	uiSelectMain();
-	printf("\e[2J\e[H\e[0m\e[5;2HFinished writing to tag.\n   Press A to continue.");
+	printf("\e[2J\e[H\e[0m\e[5;2HFinished writing to tag.\n\n   Press A to continue.");
 	uiGetKey(KEY_A);
 	return;
 	
 writeToTag_ERROR:
 	uiUpdateStatus("ERROR");
 	uiSelectMain();
-	printf("\e[2J\e[H\e[0m\e[5;2HWrite to tag failed.\n   Press A to continue.");
+	printf("\e[2J\e[H\e[0m\e[5;2HWrite to tag failed.\n\n   Press A to continue.");
 	uiGetKey(KEY_A);
 	uiUpdateStatus("");
 }
@@ -238,13 +238,13 @@ void dumpTagToFile() {
 	uiUpdateStatus("");
 	uiUpdateProgress(0, -1);
 	uiSelectMain();
-	printf("\e[2J\e[H\e[0m\e[5;2HWrote to file %s\n   Press A to continue.", dumpFileName);
+	printf("\e[2J\e[H\e[0m\e[5;2HWrote to file:\n  %s\n\n   Press A to continue.", dumpFileName);
 	uiGetKey(KEY_A);
 	return;
 dumpTagToFile_ERROR:
 	uiUpdateStatus("ERROR");
 	uiSelectMain();
-	printf("\e[2J\e[H\e[0m\e[5;2HSave tag to file failed.\n   Press A to continue.");
+	printf("\e[2J\e[H\e[0m\e[5;2HSave tag to file failed.\n\n   Press A to continue.");
 	uiGetKey(KEY_A);
 	uiUpdateStatus("");
 	uiUpdateProgress(0, -1);
@@ -282,11 +282,11 @@ void uiShowTagInfo() {
 u32 showMenu() {
 	uiSelectMain();
 	uiClearScreen();
-	printf("\e[1;0H X - Load tag from file.");
+	printf("\e[2;1H X - Load tag from file.");
 	if (tag_isLoaded())
-		printf("\e[2;0H A - Write/Restore Tag.");
-	printf("\e[1;26H Y - Dump Tag to file.");
-	printf("\e[2;26H B - Quit.");
+		printf("\e[3;1H A - Write/Restore Tag.");
+	printf("\e[2;26H Y - Dump Tag to file.");
+	printf("\e[3;26H B - Quit.");
 	uiSelectLog();
 	
 	if (tag_isLoaded()) {
@@ -329,7 +329,7 @@ int main() {
 	
 	uiUpdateProgress(0, -1);
 	uiSelectMain();
-	printf("\e[2J\e[H\x1b[7;15HPress any key to exit.");
+	printf("\e[2J\e[H\e[8;15HPress any key to exit.");
 
 	uiGetKey(0xFFFFFF);
 	
