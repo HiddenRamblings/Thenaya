@@ -137,7 +137,7 @@ class FilePicker {
 	}
 	
 	void renderList(list<FileInfo*>::iterator start, list<FileInfo*>::iterator end, list<FileInfo*>::iterator selected) {
-		printf("\e[0;0H\e[0;7m  A - Select   B - Back               Y - Cancel  \e[0m");
+		printf("\e[1;1H\e[0;7m  A - Select   B - Back               Y - Cancel  \e[0m");
 		printf("\e[0m %-47.47s\n", fs.currentDir);
 		
 		if (*start == NULL) {
