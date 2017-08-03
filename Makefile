@@ -148,7 +148,7 @@ clean:
 
 cia: $(BUILD)
 	@echo making cia
-	@makerom -f cia -o Thenaya.cia -rsf cia.rsf -target t -elf Thenaya.elf -icon icon.png -banner banner.bnr 
+	@makerom -f cia -o Thenaya.cia -rsf cia.rsf -target t -exefslogo -elf Thenaya.elf -icon Thenaya.smdh -banner banner.bnr
 #---------------------------------------------------------------------------------
 else
 
