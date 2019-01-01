@@ -35,9 +35,10 @@ INCLUDES	:=	include amitool/include
 #ROMFS		:=	romfs
 APP_TITLE   := Thenaya
 MAJOR_VERSION := 0
-MINOR_VERSION := 7
-APP_DESCRIPTION := Amiibo Maker (Alpha 0.7)
-APP_AUTHOR := HiddenRambler
+MINOR_VERSION := 8
+BUILD_VERSION := 1
+APP_DESCRIPTION := Amiibo Maker (0.8.1)
+APP_AUTHOR := HiddenRambler (mod JaySea)
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -46,7 +47,7 @@ ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 			-fomit-frame-pointer -ffunction-sections \
-			$(ARCH) -DMAJOR_VERSION=$(MAJOR_VERSION) -DMINOR_VERSION=$(MINOR_VERSION)
+			$(ARCH) -DMAJOR_VERSION=$(MAJOR_VERSION) -DMINOR_VERSION=$(MINOR_VERSION) -DBUILD_VERSION=$(BUILD_VERSION)
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
 
