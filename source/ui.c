@@ -40,7 +40,7 @@ void uiUpdateStatus(char *status) {
 void uiUpdateBanner() {
 	consoleSelect(&headerScreen);
 	printf("\e[1;7m\e[2J\e[H"); //invert colors and clear screen
-	printf("\e[1;1HThenaya\e[1;33Hv%d.%d [%s]", MAJOR_VERSION, MINOR_VERSION, __DATE__);
+	printf("\e[1;1HThenaya\e[1;31Hv%d.%d.%d [%s]", MAJOR_VERSION, MINOR_VERSION, BUILD_VERSION, __DATE__);
 	char line[51];
 	memset(line, 0xc4, sizeof(line)-1);
 	line[sizeof(line)-1] = '\0';
