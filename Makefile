@@ -71,10 +71,10 @@ LIBDIRS	:= $(CTRULIB)
 #---------------------------------------------------------------------------------
 ifneq ($(BUILD),$(notdir $(CURDIR)))
 #---------------------------------------------------------------------------------
-export OUTDIR   :=  output
+export OUTDIR   := 	output
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
 export TOPDIR	:=	$(CURDIR)
-export ZIPFILE	:=  Thenaya-$(MAJOR_VERSION).$(MINOR_VERSION).$(BUILD_VERSION).zip
+export ZIPFILE	:=	Thenaya-$(MAJOR_VERSION).$(MINOR_VERSION).$(BUILD_VERSION).zip
 
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
 			$(foreach dir,$(DATA),$(CURDIR)/$(dir))
@@ -159,11 +159,11 @@ release: $(BUILD)
 	@echo making cia
 	@makerom -f cia -o Thenaya.cia -rsf cia.rsf -target t -exefslogo -elf Thenaya.elf -icon Thenaya.smdh -banner banner.bnr
 	@mkdir -p "$(OUTDIR)"
-	@mkdir -p "3dsx"
-	@mv $(TARGET).3dsx $(TARGET).smdh "./3dsx/" 
+	@mkdir -p "3ds/Thenaya"
+	@mv $(TARGET).3dsx $(TARGET).smdh "./3ds/Thenaya" 
 	@rm -f $(TARGET).elf
-	@-7za a $(ZIPFILE) ./$(TARGET).cia "./3dsx"
-	@rm -fr "3dsx" $(TARGET).cia
+	@-7za a $(ZIPFILE) ./$(TARGET).cia "./3ds"
+	@rm -fr "3ds" $(TARGET).cia
 	@mv $(ZIPFILE) $(OUTDIR)
 	
 #---------------------------------------------------------------------------------
