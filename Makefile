@@ -71,9 +71,10 @@ LIBDIRS	:= $(CTRULIB)
 #---------------------------------------------------------------------------------
 ifneq ($(BUILD),$(notdir $(CURDIR)))
 #---------------------------------------------------------------------------------
-
+export OUTDIR   :=  output
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
 export TOPDIR	:=	$(CURDIR)
+export ZIPFILE	:=  Thenaya-$(MAJOR_VERSION).$(MINOR_VERSION).$(BUILD_VERSION).zip
 
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
 			$(foreach dir,$(DATA),$(CURDIR)/$(dir))
@@ -132,24 +133,39 @@ ifneq ($(ROMFS),)
 	export _3DSXFLAGS += --romfs=$(CURDIR)/$(ROMFS)
 endif
 
-.PHONY: $(BUILD) clean all cia
-
+.PHONY: $(BUILD) clean all cia release
 #---------------------------------------------------------------------------------
-all: $(BUILD)
-
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
+
+all: $(BUILD)
+	@mkdir -p "$(OUTDIR)"
+	@mv $(TARGET).3dsx $(TARGET).smdh $(TARGET).elf $(OUTDIR)
+
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf
-
+	@rm -fr $(BUILD) $(OUTDIR)
 
 cia: $(BUILD)
 	@echo making cia
 	@makerom -f cia -o Thenaya.cia -rsf cia.rsf -target t -exefslogo -elf Thenaya.elf -icon Thenaya.smdh -banner banner.bnr
+	@mkdir -p "$(OUTDIR)"
+	@mv $(TARGET).3dsx $(TARGET).smdh $(TARGET).elf $(TARGET).cia $(OUTDIR)
+
+release: $(BUILD)
+	@echo making cia
+	@makerom -f cia -o Thenaya.cia -rsf cia.rsf -target t -exefslogo -elf Thenaya.elf -icon Thenaya.smdh -banner banner.bnr
+	@mkdir -p "$(OUTDIR)"
+	@mkdir -p "3dsx"
+	@mv $(TARGET).3dsx $(TARGET).smdh "./3dsx/" 
+	@rm -f $(TARGET).elf
+	@-7za a $(ZIPFILE) ./$(TARGET).cia "./3dsx"
+	@rm -fr "3dsx" $(TARGET).cia
+	@mv $(ZIPFILE) $(OUTDIR)
+	
 #---------------------------------------------------------------------------------
 else
 
