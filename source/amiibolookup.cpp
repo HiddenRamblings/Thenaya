@@ -730,13 +730,16 @@ static map<u16, const char*> idList = {
 	{0x037F,"Ridley (SSB)"},
 	{0x0381,"Ice Climbers (SSB)"},
 	{0x0382,"Inkling (SSB)"},
+	{0x0383,"Ivysaur (SSB)"},
 	{0x0385,"Pichu (SSB)"},
 	{0x0387,"Pokémon Trainer (SSB)"},
 	{0x0389,"Ken (SSB)"},
+	{0x038A,"Snake (SSB)"},
 	{0x038D,"Piranha Plant (SSB)"},
 	{0x038E,"Octoling Girl (SPL)"},
 	{0x0390,"Octoling Octopus (SPL)"},
 	{0x0391,"Loot Goblin"},
+	{0x0399,"Link (LA)"},
 };
 
 struct AmiiboIdStruct* parseCharData(const u8* data) {
