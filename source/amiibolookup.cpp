@@ -731,6 +731,7 @@ static map<u16, const char*> idList = {
 	{0x0381,"Ice Climbers (SSB)"},
 	{0x0382,"Inkling (SSB)"},
 	{0x0383,"Ivysaur (SSB)"},
+	{0x0384,"Squirtle (SSB)"},
 	{0x0385,"Pichu (SSB)"},
 	{0x0387,"Pokémon Trainer (SSB)"},
 	{0x0389,"Ken (SSB)"},
