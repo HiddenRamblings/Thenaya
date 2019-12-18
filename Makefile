@@ -74,7 +74,7 @@ ifneq ($(BUILD),$(notdir $(CURDIR)))
 export OUTDIR   := 	output
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
 export TOPDIR	:=	$(CURDIR)
-export ZIPFILE	:=	Thenaya-$(MAJOR_VERSION).$(MINOR_VERSION).$(BUILD_VERSION).zip
+export ZIPFILE	:=	Thenaya_v$(MAJOR_VERSION).$(MINOR_VERSION).$(BUILD_VERSION).zip
 
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
 			$(foreach dir,$(DATA),$(CURDIR)/$(dir))
