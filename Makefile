@@ -36,8 +36,8 @@ INCLUDES	:=	include amitool/include
 APP_TITLE   := Thenaya
 MAJOR_VERSION := 0
 MINOR_VERSION := 8
-BUILD_VERSION := 2
-APP_DESCRIPTION := Amiibo Maker (0.8.2)
+BUILD_VERSION := 3
+APP_DESCRIPTION := Amiibo Maker (0.8.3)
 APP_AUTHOR := HiddenRambler (mod JaySea)
 
 #---------------------------------------------------------------------------------
