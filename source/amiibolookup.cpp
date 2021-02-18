@@ -758,6 +758,8 @@ static map<u16, const char*> idList = {
 	{0x0399,"Link (ZLA)"},
 	{0x03A1,"Joker (SSB)"},
 	{0x03A2,"Hero (SSB)"},
+	{0x03A6,"Cat Mario (SMB)"},
+	{0x03A7,"Cat Peach (SMB)"},
 };
 
 struct AmiiboIdStruct* parseCharData(const u8* data) {
