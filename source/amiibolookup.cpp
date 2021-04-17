@@ -763,6 +763,9 @@ static map<u16, const char*> idList = {
 	{0x03A5,"Byleth (SSB)"},	
 	{0x03A6,"Cat Mario (SMB)"},
 	{0x03A7,"Cat Peach (SMB)"},
+	{0x040F,"Magnamalo (MHR)"},	
+	{0x0410,"Palico (MHR)"},
+	{0x0411,"Palamute (MHR)"},
 };
 
 struct AmiiboIdStruct* parseCharData(const u8* data) {
