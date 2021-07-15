@@ -755,7 +755,13 @@ static map<u16, const char*> idList = {
 	{0x0396,"Hayakawa (JJPB)"},
 	{0x0397,"Yabe (JJPB)"},
 	{0x0398,"Ganda (JJPB)"},
-	{0x0399,"Link (ZLA)"},
+	{0x0399,"Link (Link's Awakening) (ZLA)"},
+	{0x039B,"Mario Power-Up Band (SMB)"},
+	{0x039C,"Luigi Power-Up Band (SMB)"},
+	{0x039D,"Peach Power-Up Band (SMB)"},
+	{0x039E,"Daisy Power-Up Band (SMB)"},
+	{0x039F,"Yoshi Power-Up Band (SMB)"},
+	{0x03A0,"Toad Power-Up Band (SMB)"},
 	{0x03A1,"Joker (SSB)"},
 	{0x03A2,"Hero (SSB)"},
 	{0x03A3,"Banjo & Kazooie (SSB)"},
@@ -763,9 +769,13 @@ static map<u16, const char*> idList = {
 	{0x03A5,"Byleth (SSB)"},	
 	{0x03A6,"Cat Mario (SMB)"},
 	{0x03A7,"Cat Peach (SMB)"},
+	{0x040C,"Razewing Ratha (MON)"},
+	{0x040D,"Ena (MON)"},
+	{0x040E,"Tsukino Ratha (MON)"},
 	{0x040F,"Magnamalo (MHR)"},	
 	{0x0410,"Palico (MHR)"},
 	{0x0411,"Palamute (MHR)"},
+	{0x0414,"Zelfa & Loftwing (ZSS)"},
 };
 
 struct AmiiboIdStruct* parseCharData(const u8* data) {
