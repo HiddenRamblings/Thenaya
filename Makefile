@@ -35,9 +35,10 @@ INCLUDES	:=	include amitool/include
 #ROMFS		:=	romfs
 APP_TITLE   := Thenaya
 MAJOR_VERSION := 0
-MINOR_VERSION := 7
-APP_DESCRIPTION := Amiibo Maker (Alpha 0.7)
-APP_AUTHOR := HiddenRambler
+MINOR_VERSION := 8
+BUILD_VERSION := 3
+APP_DESCRIPTION := Amiibo Maker (0.8.3)
+APP_AUTHOR := HiddenRambler (mod JaySea)
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -46,7 +47,7 @@ ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 			-fomit-frame-pointer -ffunction-sections \
-			$(ARCH) -DMAJOR_VERSION=$(MAJOR_VERSION) -DMINOR_VERSION=$(MINOR_VERSION)
+			$(ARCH) -DMAJOR_VERSION=$(MAJOR_VERSION) -DMINOR_VERSION=$(MINOR_VERSION) -DBUILD_VERSION=$(BUILD_VERSION)
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
 
@@ -70,9 +71,10 @@ LIBDIRS	:= $(CTRULIB)
 #---------------------------------------------------------------------------------
 ifneq ($(BUILD),$(notdir $(CURDIR)))
 #---------------------------------------------------------------------------------
-
+export OUTDIR   := 	output
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
 export TOPDIR	:=	$(CURDIR)
+export ZIPFILE	:=	Thenaya_v$(MAJOR_VERSION).$(MINOR_VERSION).$(BUILD_VERSION).zip
 
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
 			$(foreach dir,$(DATA),$(CURDIR)/$(dir))
@@ -131,24 +133,39 @@ ifneq ($(ROMFS),)
 	export _3DSXFLAGS += --romfs=$(CURDIR)/$(ROMFS)
 endif
 
-.PHONY: $(BUILD) clean all cia
-
+.PHONY: $(BUILD) clean all cia release
 #---------------------------------------------------------------------------------
-all: $(BUILD)
-
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
+
+all: $(BUILD)
+	@mkdir -p "$(OUTDIR)"
+	@mv $(TARGET).3dsx $(TARGET).smdh $(TARGET).elf $(OUTDIR)
+
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf
-
+	@rm -fr $(BUILD) $(OUTDIR)
 
 cia: $(BUILD)
 	@echo making cia
 	@makerom -f cia -o Thenaya.cia -rsf cia.rsf -target t -exefslogo -elf Thenaya.elf -icon Thenaya.smdh -banner banner.bnr
+	@mkdir -p "$(OUTDIR)"
+	@mv $(TARGET).3dsx $(TARGET).smdh $(TARGET).elf $(TARGET).cia $(OUTDIR)
+
+release: $(BUILD)
+	@echo making cia
+	@makerom -f cia -o Thenaya.cia -rsf cia.rsf -target t -exefslogo -elf Thenaya.elf -icon Thenaya.smdh -banner banner.bnr
+	@mkdir -p "$(OUTDIR)"
+	@mkdir -p "3ds/Thenaya"
+	@mv $(TARGET).3dsx $(TARGET).smdh "./3ds/Thenaya" 
+	@rm -f $(TARGET).elf
+	@-7za a $(ZIPFILE) ./$(TARGET).cia "./3ds"
+	@rm -fr "3ds" $(TARGET).cia
+	@mv $(ZIPFILE) $(OUTDIR)
+	
 #---------------------------------------------------------------------------------
 else
 

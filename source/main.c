@@ -219,7 +219,7 @@ void dumpTagToFile() {
 	int hours = timestruct->tm_hour;
 	int minutes = timestruct->tm_min;
 	int day = timestruct->tm_mday;
-	int month = timestruct->tm_mon;
+	int month = timestruct->tm_mon +1;
 	int year = timestruct->tm_year +1900;
 
 	char dumpFileName[200];
