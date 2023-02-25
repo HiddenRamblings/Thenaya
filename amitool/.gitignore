@@ -1,0 +1,15 @@
+# Ignore gedit backups
+*~
+
+# Ignore hidden files, except for git files
+.*
+!.gitignore
+!.gitmodules
+
+# Ignore binaries
+*.o
+/amiitool
+/amiitool.exe
+
+# Ignore version files
+/gitversion.h

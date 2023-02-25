@@ -1,0 +1,4 @@
+[submodule "amitool"]
+	path = amitool
+	url = git@github.com:8bitDream/amiitool.git
+	branch = thenaya

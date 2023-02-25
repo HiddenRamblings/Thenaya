@@ -10,7 +10,7 @@ static PrintConsole headerScreen, statusScreen, mainScreen, logScreen;
 
 void uiUpdateProgress(int value, int maxValue) {
 	static int lastValue = -1;
-	
+
 	consoleSelect(&statusScreen);
 	if (maxValue <= 0) {
 		lastValue = -1;
@@ -21,7 +21,7 @@ void uiUpdateProgress(int value, int maxValue) {
 	}
 	int perc = value * 100 / maxValue;
 	if (perc  > 100) perc = 100;
-	
+
 	if (lastValue != perc) {
 		value = perc;
 		printf("\e[2;2H%3d%%", perc);
@@ -67,7 +67,7 @@ void uiInit() {
 	consoleInit(GFX_TOP, &statusScreen);
 	consoleInit(GFX_TOP, &mainScreen);
 	consoleInit(GFX_BOTTOM, &logScreen);
-	
+
 	consoleSetWindow(&mainScreen, 0, 2, 50, 30-4);
 	consoleSetWindow(&headerScreen, 0, 0, 50, 2);
 	consoleSetWindow(&statusScreen, 0, 28, 50, 2);
@@ -103,6 +103,6 @@ u32 uiGetKey(u32 keys) {
 		if (kDown & keys)
 			return kDown;
 	}
-	
+
 	return 0;
 }

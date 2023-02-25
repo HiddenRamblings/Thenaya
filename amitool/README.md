@@ -1,6 +1,6 @@
 amiitool
 ========
-amiibo™ encryption/decryption tool
+amiibo encryption/decryption tool
 
 Usage
 =====
@@ -22,3 +22,5 @@ Examples
 
 - Encryption "modified.bin" to "signed.bin":
    > amiitool -e -k retail.bin -i "modified.bin" -o "signed.bin"
+
+*amiitool is not affiliated, associated, authorized, endorsed by, or in any way connected with Nintendo. amiibo is a registered trademark of Nintendo. No official resources are included in this project. Files created with this project are not intended for sale or distribution. This project is for educational and archival purposes only.*

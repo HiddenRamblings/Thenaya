@@ -1,6 +1,6 @@
 #include "tag.h"
-
 #include "nfc3d/amitool.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -36,18 +36,18 @@ int tag_setTag(u8 *data, int size) {
 
 	if (size > AMIIBO_MAX_SIZE)
 		return TAG_ERR_INVALID_SIZE;
-	
+
 	if (!tag_isValid(data, size))
 		return TAG_ERR_VALIDATION_FAILED;
-	
+
 	if (!keysLoaded)
 		return TAG_KEY_NOT_LOADED;
-	
+
 	int res = amitool_unpack(data, size, unpackedData, AMIIBO_MAX_SIZE);
 	if (!res) {
 		return TAG_ERR_DECRYPT_FAIL;
 	}
-	
+
 	amiiboLoaded = 1;
 	dataLength = size;
 	return TAG_ERR_OK;
@@ -58,10 +58,10 @@ int tag_setTag(u8 *data, int size) {
 /*
 accepts the first 4 pages of a tag (tagformat) and returns true if the lock signature is correct
 */
-int tag_isLocked(u8 *data, int size) { 
+int tag_isLocked(u8 *data, int size) {
 	if (size < (4 * 4))
 		return 0;
-	
+
 	return (data[PAGED_BYTE(0x02, 2)] == 0x0F && data[PAGED_BYTE(0x02, 3)] == 0xE0);
 }
 
@@ -76,7 +76,7 @@ int tag_isValid(u8 *data, int size) {
 	//lock signature mismatch
 	if (data[PAGED_BYTE(0x02, 2)] != 0x0F || data[PAGED_BYTE(0x02, 3)] != 0xE0)
 		return 0;
-	
+
 	// CC signature mismatch.
 	if (data[PAGED_BYTE(0x03, 0)] != 0xF1 || data[PAGED_BYTE(0x03, 1)] != 0x10
 	 || data[PAGED_BYTE(0x03, 2)] != 0xFF || data[PAGED_BYTE(0x03, 3)] != 0xEE)
@@ -139,7 +139,7 @@ int tag_setUid(u8* uid, int uidlen) {
 		unpackedData[0] = uid[8];
 	} else
 		return TAG_ERR_INVALID_BUFFER_SIZE;
-	
+
 	return TAG_ERR_OK;
 }
 
@@ -153,10 +153,10 @@ int tag_getTag(u8 *data, int size) {
 		return TAG_ERR_BUFFER_TOO_SMALL;
 	if (size > dataLength)
 		memset(data, 0, size);
-	
+
 	if (!keysLoaded)
 		return TAG_KEY_NOT_LOADED;
-	
+
 	int res = amitool_pack(unpackedData, dataLength, data, size);
 	if (!res) {
 		return TAG_ERR_ENCRYPT_FAIL;
@@ -169,12 +169,12 @@ int tag_calculatePassword(u8 *uid, int uidlen, u8 *pwd, int pwdlen) {
 		return TAG_ERR_INVALID_BUFFER_SIZE;
 	if (pwdlen < TAG_PWD_LEN)
 		return TAG_ERR_BUFFER_TOO_SMALL;
-	
+
 	pwd[0] = 0xAA ^ (uid[1] ^ uid[3]);
 	pwd[1] = 0x55 ^ (uid[2] ^ uid[4]);
 	pwd[2] = 0xAA ^ (uid[3] ^ uid[5]);
 	pwd[3] = 0x55 ^ (uid[4] ^ uid[6]);
-	
+
 	return TAG_ERR_OK;
 }
 

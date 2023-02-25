@@ -31,14 +31,14 @@ TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	amitool amitool/mbedtls source
 DATA		:=	data
-INCLUDES	:=	include amitool/include
+INCLUDES	:=	include amitool/include amitool/mbedtls/include
 #ROMFS		:=	romfs
 APP_TITLE   := Thenaya
 MAJOR_VERSION := 0
 MINOR_VERSION := 8
 BUILD_VERSION := 3
 APP_DESCRIPTION := Amiibo Maker (0.8.3)
-APP_AUTHOR := HiddenRambler (mod JaySea)
+APP_AUTHOR := HiddenRambler and JaySea
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -49,7 +49,7 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 			-fomit-frame-pointer -ffunction-sections \
 			$(ARCH) -DMAJOR_VERSION=$(MAJOR_VERSION) -DMINOR_VERSION=$(MINOR_VERSION) -DBUILD_VERSION=$(BUILD_VERSION)
 
-CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
+CFLAGS	+=	$(INCLUDE) -D__3DS__
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
@@ -160,12 +160,12 @@ release: $(BUILD)
 	@makerom -f cia -o Thenaya.cia -rsf cia.rsf -target t -exefslogo -elf Thenaya.elf -icon Thenaya.smdh -banner banner.bnr
 	@mkdir -p "$(OUTDIR)"
 	@mkdir -p "3ds/Thenaya"
-	@mv $(TARGET).3dsx $(TARGET).smdh "./3ds/Thenaya" 
+	@mv $(TARGET).3dsx $(TARGET).smdh "./3ds/Thenaya"
 	@rm -f $(TARGET).elf
 	@-7za a $(ZIPFILE) ./$(TARGET).cia "./3ds"
 	@rm -fr "3ds" $(TARGET).cia
 	@mv $(ZIPFILE) $(OUTDIR)
-	
+
 #---------------------------------------------------------------------------------
 else
 

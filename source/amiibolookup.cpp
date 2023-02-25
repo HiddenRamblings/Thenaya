@@ -727,7 +727,7 @@ static map<u16, const char*> idList = {
 	{0x037A,"Daisy (SSB)"},
 	{0x037B,"King K. Rool (SSB)"},
 	{0x037C,"Young Link (SSB)"},
-	{0x037D,"Isabelle (SSB)"},	
+	{0x037D,"Isabelle (SSB)"},
 	{0x037E,"Wolf (SSB)"},
 	{0x037F,"Octoling Boy (SPL)"},
 	{0x037F,"Ridley (SSB)"},
@@ -766,7 +766,7 @@ static map<u16, const char*> idList = {
 	{0x03A2,"Hero (SSB)"},
 	{0x03A3,"Banjo & Kazooie (SSB)"},
 	{0x03A4,"Terry Bogard (SSB)"},
-	{0x03A5,"Byleth (SSB)"},	
+	{0x03A5,"Byleth (SSB)"},
 	{0x03A6,"Cat Mario (SMB)"},
 	{0x03A7,"Cat Peach (SMB)"},
 	{0x03A8,"Tom Nook (ACC5)"},
@@ -820,7 +820,7 @@ static map<u16, const char*> idList = {
 	{0x040C,"Razewing Ratha (MON)"},
 	{0x040D,"Ena (MON)"},
 	{0x040E,"Tsukino Ratha (MON)"},
-	{0x040F,"Magnamalo (MHR)"},	
+	{0x040F,"Magnamalo (MHR)"},
 	{0x0410,"Palico (MHR)"},
 	{0x0411,"Palamute (MHR)"},
 	{0x0412,"Samus (Metroid Dread) (MET)"},
@@ -831,7 +831,7 @@ static map<u16, const char*> idList = {
 	{0x041C,"Smallfry (SPL)"},
 	{0x041D,"Min Min (SSB)"},
 	{0x0422,"Steve (SSB)"},
-	{0x0423,"Alex (SSB)"},	
+	{0x0423,"Alex (SSB)"},
 	{0x0424,"Yuga Oudou (YGO)"},
 	{0x0425,"Tatsuhisa 'Luke' Kamijō (YGO)"},
 	{0x0426,"Gakuto Sōgetsu (YGO)"},
@@ -846,7 +846,7 @@ static map<u16, const char*> idList = {
 
 struct AmiiboIdStruct* parseCharData(const u8* data) {
 	static struct AmiiboIdStruct result;
-	
+
 	int brand = (data[0x00] & 0xFF) << 8;
 	brand |= (data[0x01] & 0xFF);
 
@@ -859,7 +859,7 @@ struct AmiiboIdStruct* parseCharData(const u8* data) {
 
 	int series = (data[0x06] & 0xFF) << 8;
 	series |= (data[0x07] & 0xFF);
-	
+
 	result.brand = brand;
 	result.variant = variant;
 	result.type = type;
@@ -877,7 +877,7 @@ int getNameByAmiiboId(u16 id, char *name, int length) {
 	int len = strlen(val);
 	if (len >= length)
 		return 0;
-	
+
 	strcpy(name, val);
 	return len;
 }
