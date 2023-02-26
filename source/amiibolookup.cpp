@@ -830,6 +830,8 @@ static map<u16, const char*> idList = {
 	{0x041B,"Octoling (Blue) (SPL)"},
 	{0x041C,"Smallfry (SPL)"},
 	{0x041D,"Min Min (SSB)"},
+	{0x0420,"Kazuya (SSB)"},
+	{0x0421,"Sephiroth (SSSB)"},
 	{0x0422,"Steve (SSB)"},
 	{0x0423,"Alex (SSB)"},
 	{0x0424,"Yuga Oudou (YGO)"},
