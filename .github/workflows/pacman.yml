@@ -1,0 +1,51 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitarm
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Retrieve commit identification
+      run: |
+        GIT_BRANCH=$(git name-rev --name-only HEAD)
+        echo "GIT_BRANCH=${GIT_BRANCH}" >> $GITHUB_ENV
+        GIT_HASH=$(git rev-parse --short HEAD)
+        echo "GIT_HASH=${GIT_HASH}" >> $GITHUB_ENV
+
+    - name: Build Thenaya binaries
+      run: make
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Thenaya-${{ env.GIT_HASH }}
+        path: |
+          Thenaya.3dsx
+          Thenaya.elf
+          Thenaya.smdh
+
+    - uses: marvinpinto/action-automatic-releases@v1.2.1
+      if: github.event_name != 'pull_request'
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: ${{ env.GIT_BRANCH }}
+        prerelease: ${{ env.GIT_BRANCH != 'master' }}
+        title: Thenaya-${{ env.GIT_HASH }}
+        files: |
+          Thenaya.3dsx
+          Thenaya.elf
+          Thenaya.smdh
