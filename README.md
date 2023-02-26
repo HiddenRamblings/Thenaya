@@ -30,6 +30,8 @@ Additional thanks go out to (alphabetically):
 * N3evin - [AmiiboAPI](https://github.com/N3evin/AmiiboAPI)
 * socram8888 - [amiitool](https://github.com/socram8888/amiitool)
 
+##
+![Thenaya Logo](assets/thenaya_feature.png)
 ###
 *Thenaya is not affiliated, associated, authorized, endorsed by, or in any way connected with Nintendo. amiibo is a registered trademark of Nintendo. No official resources are included in this project. Files created with this project are not intended for sale or distribution. This project is for educational and archival purposes only.*
 
