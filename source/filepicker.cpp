@@ -13,19 +13,19 @@
 #include <iostream>
 
 using namespace std;
- 
+
 class FileInfo {
 	public:
 	char* name;
 	bool isDir;
-	
+
 	FileInfo(char *fileName, bool fileIsDir) {
 		int nlen = strlen(fileName);
 		name = new char[nlen+1];
 		strcpy(name, fileName);
 		isDir = fileIsDir;
 	}
-	
+
 	~FileInfo() {
 		delete [] name;
 	}
@@ -73,7 +73,7 @@ class FileSystem {
 	FileSystem() {
 		currentDir = NULL;
 	}
-	
+
     ~FileSystem() {
     	clear();
     }
@@ -86,7 +86,7 @@ class FileSystem {
 			delete [] currentDir;
 		currentDir = NULL;
 	}
-	
+
 	bool load(const char *path) {
 		DIR *fd;
 		if (NULL == (fd = opendir(path))) {
@@ -96,18 +96,18 @@ class FileSystem {
 		clear();
 		currentDir = new char[strlen(path)+1];
 		strcpy(currentDir, path);
-	 
+
 		struct dirent *file;
 		while ((file = readdir(fd))) {
 			if (!strcmp (file->d_name, "."))
 				continue;
 			if (!strcmp (file->d_name, ".."))
 				continue;
-	 
+
 			FileInfo *fileitem = new FileInfo(file->d_name, file->d_type == DT_DIR);
 			files.push_back(fileitem);
 		}
-		
+
 		closedir(fd);
 
 		files.sort(compareFileInfo);
@@ -120,26 +120,26 @@ class FilePicker {
 	FileSystem fs;
 	int maxLines;
 	char *selectedFile;
-	
+
 	FilePicker(int maxLines) {
 		this->maxLines = maxLines;
 		selectedFile = NULL;
 	}
-	
+
 	~FilePicker() {
 		if (selectedFile != NULL) {
 			delete [] selectedFile;
 		}
 	}
-	
+
 	void setPath(const char *path) {
 		fs.load(path);
 	}
-	
+
 	void renderList(list<FileInfo*>::iterator start, list<FileInfo*>::iterator end, list<FileInfo*>::iterator selected) {
 		printf("\e[1;1H\e[0;7m  A - Select   B - Back               Y - Cancel  \e[0m");
 		printf("\e[0m %-47.47s\n", fs.currentDir);
-		
+
 		if (*start == NULL) {
 			printf("   \e[1;31m[%-44.44s]", "EMPTY DIR");
 			for(int i=0; i<maxLines-2; i++) {
@@ -167,7 +167,7 @@ class FilePicker {
 			f = std::next(f, 1);
 		}
 	}
-	
+
 	bool show() {
 		uiSelectMain();
 		list<FileInfo*>::iterator begin;
@@ -175,9 +175,9 @@ class FilePicker {
 		list<FileInfo*>::iterator current;
 		list<FileInfo*>::iterator selected;
 		int selectedIndex;
-		
+
 		bool dirChanged = true;
-		
+
 		while (aptMainLoop()) {
 			if (dirChanged) {
 				begin = fs.files.begin();
@@ -198,7 +198,7 @@ class FilePicker {
 					}
 					selected = selectedNext;
 					selectedIndex++;
-					
+
 					if (selectedIndex > (maxLines / 2)) {
 						auto next = std::next(current, 1);
 						if (next != end)
@@ -214,7 +214,7 @@ class FilePicker {
 					}
 					selected = std::next(selected, -1);
 					selectedIndex--;
-					
+
 					if (current != begin)
 						current = std::next(current, -1);
 				}
@@ -247,10 +247,10 @@ class FilePicker {
 				int size = strlen(fs.currentDir);
 				char *parent = new char[size+1];
 				getParentDir(fs.currentDir, parent);
-				
+
 				setPath(parent);
 				delete [] parent;
-				
+
 				dirChanged = true;
 			} else if (key & KEY_Y) {
 				printf("Returning\n");
