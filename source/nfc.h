@@ -4,6 +4,8 @@
 extern "C" {
 #endif
 
+#define NFC_TIMEOUT  200 * 1000000
+
 //result size of a block read (READ command)
 #define NTAG_PAGE_SIZE 4
 #define NTAG_FAST_READ_PAGE_COUNT 15

@@ -15,8 +15,6 @@
 
 #define NFC_EMULATE 0
 
-#define NFC_TIMEOUT  200 * 1000000
-
 #define CMD_FAST_READ(pagestart, pagecount) {0x3A, pagestart, pagestart+pagecount-1}
 #define CMD_READ(pagestart) {0x30, pagestart}
 #define CMD_WRITE(pagestart, data) {0xA2, pagestart, data[0], data[1], data[2], data[3]}
@@ -231,8 +229,9 @@ static Result writePage(int pageId, u8 *data) {
 	int ret = DnfcSendTagCommand(cmd, sizeof(cmd), buffer, sizeof(buffer), &resultsize, NFC_TIMEOUT);
 	if(R_FAILED(ret)) {
 		printf("Writing Tag page %d failed: 0x%08x.\n", pageId, (unsigned int)ret);
-	} else if (resultsize >=1 && buffer[0] != 0x0A)
+	} else if (resultsize >=1 && buffer[0] != 0x0A) {
 		printf("write page returned a NAK %d\n", buffer[0]);
+	}
 	return ret;
 }
 
@@ -389,7 +388,7 @@ Result nfc_write(u8 *data, int datalen, u8 *PWD, int PWDLength, int fullWrite) {
 	if (datalen < NTAG_PAGE_SIZE * 0x81) return -1;
 	if (PWDLength != NTAG_PAGE_SIZE) return -1;
 
-	Result ret=0;
+	Result ret = 0;
 
 	NFC_TagState prevstate, curstate;
 
