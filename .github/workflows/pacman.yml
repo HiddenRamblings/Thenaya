@@ -42,7 +42,7 @@ jobs:
       if: github.event_name != 'pull_request'
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: ${{ env.GIT_BRANCH }}
+        automatic_release_tag: "latest"
         prerelease: ${{ env.GIT_BRANCH != 'master' }}
         title: Thenaya-${{ env.GIT_HASH }}
         files: |
