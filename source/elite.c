@@ -16,6 +16,10 @@
 #define DnfcSendTagCommand nfcSendTagCommand
 #define DnfcStopScanning nfcStopScanning
 
+u32 showEliteMenu() {
+	return uiGetKey(KEY_X | KEY_A | KEY_Y | KEY_B);
+}
+
 u8* elite_getBankCount() {
   u8 req[1];
   req[0] = N2_BANK_COUNT;
@@ -143,10 +147,13 @@ Result elite_write(u8 *data) {
 		if(curstate!=prevstate) {
 			prevstate = curstate;
 			if(curstate==NFC_TagState_InRange) {
+        uiUpdateStatus("Tag detected.");
         u8 buffer[AMIIBO_MAX_SIZE];
 				memset(buffer, 0, sizeof(buffer));
         size_t resultsize = sizeof(buffer);
+
       	int ret = DnfcSendTagCommand(data, sizeof(data), buffer, sizeof(buffer), &resultsize, NFC_TIMEOUT);
+
       	if(R_FAILED(ret)) {
       		printf("Writing to N2 failed: 0x%08x.\n", (unsigned int)ret);
       	} else if (resultsize >=1 && buffer[0] != 0x0A) {
@@ -155,8 +162,7 @@ Result elite_write(u8 *data) {
       	if(R_FAILED(nfcCmd22())) {  //power down the tag
       		printf("nfcCmd22 failed: 0x%08x.\n", (unsigned int)ret);
       	}
-      	return ret;
-				break;
+      	break;
 			}
 		}
 	}

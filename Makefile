@@ -151,13 +151,13 @@ clean:
 
 cia: $(BUILD)
 	@echo making cia
-	@makerom -f cia -o Thenaya.cia -rsf cia.rsf -target t -exefslogo -elf Thenaya.elf -icon Thenaya.smdh -banner banner.bnr
+	@./makerom -f cia -o Thenaya.cia -rsf cia.rsf -target t -exefslogo -elf Thenaya.elf -icon Thenaya.smdh -banner banner.bnr
 	@mkdir -p "$(OUTDIR)"
 	@mv $(TARGET).3dsx $(TARGET).smdh $(TARGET).elf $(TARGET).cia $(OUTDIR)
 
 release: $(BUILD)
 	@echo making cia
-	@makerom -f cia -o Thenaya.cia -rsf cia.rsf -target t -exefslogo -elf Thenaya.elf -icon Thenaya.smdh -banner banner.bnr
+	@./makerom -f cia -o Thenaya.cia -rsf cia.rsf -target t -exefslogo -elf Thenaya.elf -icon Thenaya.smdh -banner banner.bnr
 	@mkdir -p "$(OUTDIR)"
 	@mkdir -p "3ds/Thenaya"
 	@mv $(TARGET).3dsx $(TARGET).smdh "./3ds/Thenaya"

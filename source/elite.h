@@ -29,15 +29,9 @@ extern "C" {
 #define N2_WRITE 0xA5
 #define SECTOR_SELECT 0xC2
 
+u32 showEliteMenu();
 u8* elite_getBankCount();
 u8* elite_readSignature();
-void elite_setBankCount(int count);
-void elite_activateBank(int bank);
-void elite_initFirmware();
-u8* elite_fastRead(int startAddr, int endAddr);
-u8* elite_amiiboFastRead(int startAddr, int endAddr, int bank);
-bool elite_amiiboWrite(int addr, int bank, u8 *data);
-bool elite_amiiboFastWrite(int addr, int bank, u8 *data);
 void elite_amiiboLock();
 u8* elite_amiiboPrepareUnlock();
 void elite_amiiboUnlock();

@@ -1,6 +1,7 @@
 # Built application files
 build
 output
+makerom
 Thenaya.*
 
 # OS-specific files

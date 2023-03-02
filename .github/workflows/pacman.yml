@@ -7,27 +7,9 @@ on:
     branches: [ master ]
 
 permissions:
-  actions: write
   contents: write
 
 jobs:
-  clean:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-    - name: Remove artifacts
-      uses: c-hive/gha-remove-artifacts@v1
-      with:
-        age: '2 days' # '<number> <unit>', parsed by Moment.js
-        # Optional inputs
-        # skip-tags: true
-        skip-recent: 2
-    - name: Purge cache
-      uses: MyAlbum/purge-cache@v1
-      with:
-        token: "${{ secrets.GITHUB_TOKEN }}"
-        max-age: 172800 # 2 days, default: 7 days since last use
   build:
 
     runs-on: ubuntu-latest
@@ -36,25 +18,50 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
+        repository: 3DSGuy/Project_CTR
+        path: Project_CTR
+
+    - uses: actions/checkout@v3
+      with:
         submodules: recursive
+        path: Thenaya
+
+    - name: Install packages
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential p7zip-full
+
+    - name: Compile makerom
+      run: |
+        cd Project_CTR
+        make
+        cd ../
+        cp Project_CTR/makerom/bin/makerom Thenaya/makerom
+        chmod a+x Thenaya/makerom
+
+    - name: Install makerom
+      run: |
+        cp Project_CTR/makerom/bin/makerom Thenaya/makerom
+        chmod a+x Thenaya/makerom
+
+    - name: Build Thenaya binaries
+      run: |
+        cd Thenaya
+        make release
 
     - name: Retrieve commit identification
       run: |
+        cd Thenaya
         GIT_BRANCH=$(git name-rev --name-only HEAD)
         echo "GIT_BRANCH=${GIT_BRANCH}" >> $GITHUB_ENV
         GIT_HASH=$(git rev-parse --short HEAD)
         echo "GIT_HASH=${GIT_HASH}" >> $GITHUB_ENV
 
-    - name: Build Thenaya binaries
-      run: make
-
     - uses: actions/upload-artifact@v3
       with:
         name: Thenaya-${{ env.GIT_HASH }}
         path: |
-          Thenaya.3dsx
-          Thenaya.elf
-          Thenaya.smdh
+          Thenaya/output/Thenaya_*.zip
 
     - uses: marvinpinto/action-automatic-releases@v1.2.1
       if: github.event_name != 'pull_request'
@@ -64,6 +71,4 @@ jobs:
         prerelease: ${{ env.GIT_BRANCH != 'master' }}
         title: Thenaya-${{ env.GIT_HASH }}
         files: |
-          Thenaya.3dsx
-          Thenaya.elf
-          Thenaya.smdh
+          Thenaya/output/Thenaya_*.zip

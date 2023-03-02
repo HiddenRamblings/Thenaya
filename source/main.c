@@ -12,6 +12,7 @@
 
 #include "tag.h"
 #include "nfc.h"
+#include "elite.h"
 #include "nfc3d/amitool.h"
 #include "filepicker.h"
 #include "ui.h"
@@ -285,6 +286,8 @@ u32 showMenu() {
 	printf("\e[2;1H X - Load tag from file.");
 	if (tag_isLoaded())
 		printf("\e[3;1H A - Write/Restore Tag.");
+	else
+		printf("\e[3;1H A - N2 Elite options.");
 	printf("\e[2;26H Y - Dump Tag to file.");
 	printf("\e[3;26H B - Quit.");
 	uiSelectLog();
@@ -301,8 +304,12 @@ void menu() {
 
 		if (kDown & KEY_X) {
 			loadDump();
-		} else if ((kDown & KEY_A) && tag_isLoaded() && tag_isKeysLoaded()) {
-			writeToTag();
+		} else if ((kDown & KEY_A)) {
+			if (tag_isLoaded() && tag_isKeysLoaded()) {
+				writeToTag();
+			} else {
+				showEliteMenu();
+			}
 		} else if (kDown & KEY_Y) {
 			dumpTagToFile();
 		} else if (kDown & KEY_B)
