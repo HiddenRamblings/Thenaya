@@ -16,23 +16,22 @@
 #define DnfcSendTagCommand nfcSendTagCommand
 #define DnfcStopScanning nfcStopScanning
 
-u32 showEliteMenu() {
-	return uiGetKey(KEY_X | KEY_A | KEY_Y | KEY_B);
-}
-
 u8* elite_getBankCount() {
+  uiUpdateStatus("Getting bank count..");
   u8 req[1];
   req[0] = N2_BANK_COUNT;
   return (u8*) elite_write(req);
 }
 
 u8* elite_readSignature() {
+  uiUpdateStatus("Reading signature..");
   u8 req[1];
   req[0] = N2_READ_SIG;
   return (u8*) elite_write(req);
 }
 
 void elite_setBankCount(int count) {
+  uiUpdateStatus("Setting bank count..");
   u8 req[2];
   req[0] = N2_SET_BANKCOUNT;
   req[1] = count;
@@ -40,6 +39,7 @@ void elite_setBankCount(int count) {
 }
 
 void elite_activateBank(int bank) {
+  uiUpdateStatus("Activating bank..");
   u8 req[2];
   req[0] = N2_ACTIVATE_BANK;
   req[1] = bank;
@@ -115,8 +115,12 @@ void elite_amiiboUnlock() {
 
 Result elite_write(u8 *data) {
 	Result ret = 0;
-
   NFC_TagState prevstate, curstate;
+
+  uiSelectMain();
+	//todo: show title as write to tag / restore tag
+	printf("\e[2J\e[H\e[0m\e[5;2HPlace tag on scanner, or press B to cancel");
+	uiUpdateStatus("Waiting...");
 
 	ret = DnfcStartOtherTagScanning(NFC_STARTSCAN_DEFAULTINPUT, 0x01);
 	if(R_FAILED(ret)) {
@@ -170,4 +174,35 @@ Result elite_write(u8 *data) {
 	DnfcStopScanning();
 	printf("\n");
 	return ret;
+}
+
+void showBankCount() {
+  u8 *banks = elite_getBankCount();
+	printf("%u banks active\n", banks[1]);
+}
+
+u32 showMenuElite() {
+  uiSelectMain();
+	uiClearScreen();
+	printf("\e[2;1H X - Get bank count.");
+	printf("\e[3;1H A - Coming Soon!");
+	printf("\e[2;26H Y - Coming Soon!");
+	printf("\e[3;26H B - Quit.");
+	uiSelectLog();
+	return uiGetKey(KEY_X | KEY_A | KEY_Y | KEY_B);
+}
+
+void menuElite() {
+	while (aptMainLoop()) {
+		u32 kDown = showMenuElite();
+
+		if (kDown & KEY_X) {
+			showBankCount();
+		} else if ((kDown & KEY_A)) {
+			break;
+		} else if (kDown & KEY_Y) {
+			break;
+		} else if (kDown & KEY_B)
+			break;
+	}
 }

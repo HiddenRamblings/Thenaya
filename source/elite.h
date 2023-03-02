@@ -29,13 +29,13 @@ extern "C" {
 #define N2_WRITE 0xA5
 #define SECTOR_SELECT 0xC2
 
-u32 showEliteMenu();
 u8* elite_getBankCount();
 u8* elite_readSignature();
 void elite_amiiboLock();
 u8* elite_amiiboPrepareUnlock();
 void elite_amiiboUnlock();
 Result elite_write(u8 *data);
+void menuElite();
 
 #ifdef __cplusplus
 }

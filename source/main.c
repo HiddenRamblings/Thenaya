@@ -308,7 +308,7 @@ void menu() {
 			if (tag_isLoaded() && tag_isKeysLoaded()) {
 				writeToTag();
 			} else {
-				showEliteMenu();
+				menuElite();
 			}
 		} else if (kDown & KEY_Y) {
 			dumpTagToFile();
