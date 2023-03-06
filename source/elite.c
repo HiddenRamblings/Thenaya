@@ -6,6 +6,7 @@
 #include <3ds/services/apt.h>
 
 #include "elite.h"
+#include "main.h"
 #include "nfc.h"
 #include "nfc3d/amitool.h"
 #include "ui.h"
@@ -173,7 +174,23 @@ Result elite_write(u8 *data) {
 
 	DnfcStopScanning();
 	printf("\n");
+	if(R_FAILED(ret)) {
+		goto writeToTag_ERROR;
+	}
+
+	uiUpdateStatus("Complete.");
+	uiUpdateProgress(0, -1);
+	uiSelectMain();
+	printf("\e[2J\e[H\e[0m\e[5;2HFinished writing to N2.\n\n   Press A to continue.");
+	uiGetKey(KEY_A);
 	return ret;
+
+writeToTag_ERROR:
+	uiUpdateStatus("ERROR");
+	uiSelectMain();
+	printf("\e[2J\e[H\e[0m\e[5;2HWrite to N2 failed.\n\n   Press A to continue.");
+	uiGetKey(KEY_A);
+  return ret;
 }
 
 void showBankCount() {
@@ -202,7 +219,8 @@ void menuElite() {
 			break;
 		} else if (kDown & KEY_Y) {
 			break;
-		} else if (kDown & KEY_B)
-			break;
+		} else if (kDown & KEY_B) {
+      reset();
+    }
 	}
 }

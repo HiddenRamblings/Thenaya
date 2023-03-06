@@ -10,6 +10,7 @@
 #include <3ds/services/nfc.h>
 #include <3ds/services/apt.h>
 
+#include "main.h"
 #include "tag.h"
 #include "nfc.h"
 #include "elite.h"
@@ -317,7 +318,7 @@ void menu() {
 	}
 }
 
-int main() {
+int reset() {
 	uiInit();
 
 	uiUpdateBanner();
@@ -348,4 +349,8 @@ int main() {
 
 	uiExit();
 	return 0;
+}
+
+int main() {
+	reset();
 }
