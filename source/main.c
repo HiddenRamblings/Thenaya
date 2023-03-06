@@ -19,7 +19,7 @@
 #include "amiibolookup.h"
 #include "util2.h"
 
-#define KEY_FILE_PATH "sdmc:/amiibo_keys.bin"
+#define KEY_FILE_PATH "sdmc:/key_retail.bin"
 #define KEY_FILE_SIZE 160
 
 #define AMIIBO_DUMP_ROOT "sdmc:/amiibo"
