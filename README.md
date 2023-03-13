@@ -2,6 +2,11 @@
 
 ### Restoration of this project is currently WIP. Please be patient.
 
+Thenaya requires keys that are not included for legal reasons.    
+Place "key_retail.bin" in the root of sdmc:/ folder (sdcard).    
+If you have separate keys, please combine them into one file.    
+ - `cat unfixed-info.bin locked-secret.bin > key_retail.bin`
+
 ## Building Thenaya
 
 Follow the instructions at https://devkitpro.org/wiki/devkitPro_pacman to install pacman
