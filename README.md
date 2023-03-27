@@ -3,10 +3,18 @@
 ### Restoration of this project is currently WIP. Please be patient.
 
 
+## Thenaya Install
+
+<p align="center">
+<img alt='Thenaya QR Code' src='https://github.com/HiddenRamblings/Thenaya/blob/master/assets/Thenaya_CIAQR.png?raw=true'/></a>
+</p>
+Open FBI, select Remote Install, select Scan QR Code, scan QR above
+<br>Download and unzip Thenaya_vX.X.zip, copy to matching sdmc folders
+
 ## Thenaya Setup
 
-Place "key_retail.bin" in the root of sdmc:/ folder (sdcard).    
-If using separate keys, they will need to be combined first.    
+Place "key_retail.bin" in the root of sdmc:/ folder (sdcard).  
+If using separate keys, they will need to be combined first.  
  - `cat unfixed-info.bin locked-secret.bin > key_retail.bin`
 
 ## Building Thenaya
@@ -41,4 +49,3 @@ Additional thanks go out to (alphabetically):
 ![Thenaya Logo](assets/thenaya_feature.png)
 ###
 *Thenaya is not affiliated, associated, authorized, endorsed by, or in any way connected with Nintendo. amiibo is a registered trademark of Nintendo. No official resources are included in this project. Files created with this project are not intended for sale or distribution. This project is for educational and archival purposes only.*
-

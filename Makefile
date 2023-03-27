@@ -163,7 +163,8 @@ release: $(BUILD)
 	@mv $(TARGET).3dsx $(TARGET).smdh "./3ds/Thenaya"
 	@rm -f $(TARGET).elf
 	@-7za a $(ZIPFILE) ./$(TARGET).cia "./3ds"
-	@rm -fr "3ds" $(TARGET).cia
+	@mv $(TARGET).cia $(OUTDIR)
+	@rm -fr "3ds"
 	@mv $(ZIPFILE) $(OUTDIR)
 
 #---------------------------------------------------------------------------------
