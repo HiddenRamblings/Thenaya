@@ -1,4 +1,8 @@
 #include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 #include <3ds.h>
 #include <3ds/errf.h>
@@ -17,23 +21,23 @@
 #define DnfcSendTagCommand nfcSendTagCommand
 #define DnfcStopScanning nfcStopScanning
 
-u8* elite_getBankCount() {
+uint8_t* elite_getBankCount() {
   uiUpdateStatus("Getting bank count..");
-  u8 req[1];
+  uint8_t req[1];
   req[0] = N2_BANK_COUNT;
-  return (u8*) elite_write(req);
+  return (uint8_t*) elite_write(req);
 }
 
-u8* elite_readSignature() {
+uint8_t* elite_readSignature() {
   uiUpdateStatus("Reading signature..");
-  u8 req[1];
+  uint8_t req[1];
   req[0] = N2_READ_SIG;
-  return (u8*) elite_write(req);
+  return (uint8_t*) elite_write(req);
 }
 
 void elite_setBankCount(int count) {
   uiUpdateStatus("Setting bank count..");
-  u8 req[2];
+  uint8_t req[2];
   req[0] = N2_SET_BANKCOUNT;
   req[1] = count;
   elite_write(req);
@@ -41,51 +45,51 @@ void elite_setBankCount(int count) {
 
 void elite_activateBank(int bank) {
   uiUpdateStatus("Activating bank..");
-  u8 req[2];
+  uint8_t req[2];
   req[0] = N2_ACTIVATE_BANK;
   req[1] = bank;
   elite_write(req);
 }
 
 void elite_initFirmware() {
-  u8 req[16];
-  req[0] = (u8) 0xFFF4;
+  uint8_t req[16];
+  req[0] = (uint8_t) 0xFFF4;
   req[1] = 0x49;
-  req[2] = (u8) 0xFF9B;
-  req[3] = (u8) 0xFF99;
-  req[4] = (u8) 0xFFC3;
-  req[5] = (u8) 0xFFDA;
+  req[2] = (uint8_t) 0xFF9B;
+  req[3] = (uint8_t) 0xFF99;
+  req[4] = (uint8_t) 0xFFC3;
+  req[5] = (uint8_t) 0xFFDA;
   req[6] = 0x57;
   req[7] = 0x71;
   req[8] = 0x0A;
   req[9] = 0x64;
   req[10] = 0x4A;
-  req[11] = (u8) 0xFF9E;
-  req[12] = (u8) 0xFFF8;
+  req[11] = (uint8_t) 0xFF9E;
+  req[12] = (uint8_t) 0xFFF8;
   req[13] = CMD_WRITE;
   req[14] = CMD_READ;
-  req[15] = (u8) 0xFFD9;
+  req[15] = (uint8_t) 0xFFD9;
   elite_write(req);
 }
 
-u8* elite_fastRead(int startAddr, int endAddr) {
-  u8 req[3] = {CMD_FAST_READ, startAddr, endAddr};
-  return (u8*) elite_write(req);
+uint8_t* elite_fastRead(int startAddr, int endAddr) {
+  uint8_t req[3] = {CMD_FAST_READ, startAddr, endAddr};
+  return (uint8_t*) elite_write(req);
 }
 
-u8* elite_amiiboFastRead(int startAddr, int endAddr, int bank) {
-  u8 req[4] = {N2_FAST_READ, startAddr, endAddr, bank};
-  return (u8*) elite_write(req);
+uint8_t* elite_amiiboFastRead(int startAddr, int endAddr, int bank) {
+  uint8_t req[4] = {N2_FAST_READ, startAddr, endAddr, bank};
+  return (uint8_t*) elite_write(req);
 }
 
-bool elite_amiiboWrite(int addr, int bank, u8 *data) {
-  u8 req[7] = {N2_WRITE, addr, bank, data[0], data[1], data[2], data[3]};
+bool elite_amiiboWrite(int addr, int bank, uint8_t *data) {
+  uint8_t req[7] = {N2_WRITE, addr, bank, data[0], data[1], data[2], data[3]};
   int ret = elite_write(req);
   return R_FAILED(ret);
 }
 
-bool elite_amiiboFastWrite(int addr, int bank, u8 *data) {
-  u8 req[sizeof(data)+3];
+bool elite_amiiboFastWrite(int addr, int bank, uint8_t *data) {
+  uint8_t req[sizeof(data)+3];
   req[0] = N2_FAST_WRITE;
   req[1] = addr;
   req[2] = bank;
@@ -97,24 +101,24 @@ bool elite_amiiboFastWrite(int addr, int bank, u8 *data) {
 }
 
 void elite_amiiboLock() {
-  u8 req[1];
+  uint8_t req[1];
   req[0] = N2_LOCK;
   elite_write(req);
 }
 
-u8* elite_amiiboPrepareUnlock() {
-  u8 req[1];
+uint8_t* elite_amiiboPrepareUnlock() {
+  uint8_t req[1];
   req[0] = N2_UNLOCK_1;
-  return (u8*) elite_write(req);
+  return (uint8_t*) elite_write(req);
 }
 
 void elite_amiiboUnlock() {
-  u8 req[1];
+  uint8_t req[1];
   req[0] = N2_UNLOCK_2;
   elite_write(req);
 }
 
-Result elite_write(u8 *data) {
+Result elite_write(uint8_t *data) {
 	Result ret = 0;
   NFC_TagState prevstate, curstate;
 
@@ -153,7 +157,7 @@ Result elite_write(u8 *data) {
 			prevstate = curstate;
 			if(curstate==NFC_TagState_InRange) {
         uiUpdateStatus("Tag detected.");
-        u8 buffer[AMIIBO_MAX_SIZE];
+        uint8_t buffer[AMIIBO_MAX_SIZE];
 				memset(buffer, 0, sizeof(buffer));
         size_t resultsize = sizeof(buffer);
 
@@ -194,7 +198,7 @@ writeToTag_ERROR:
 }
 
 void showBankCount() {
-  u8 *banks = elite_getBankCount();
+  uint8_t *banks = elite_getBankCount();
 	printf("%u banks active\n", banks[1]);
 }
 
@@ -220,7 +224,7 @@ void menuElite() {
 		} else if (kDown & KEY_Y) {
 			break;
 		} else if (kDown & KEY_B) {
-      reset();
+      menuExtras();
     }
 	}
 }

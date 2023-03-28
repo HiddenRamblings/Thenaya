@@ -25,19 +25,19 @@ extern "C" {
 #define TAG_CHAR_ID_LENGTH 8
 
 
-int tag_setKeys(u8 *keybuffer, int size);
+int tag_setKeys(uint8_t *keybuffer, int size);
 int tag_isLoaded();
 int tag_isKeysLoaded();
-int tag_setTag(u8 *data, int datalength);
-int tag_isValid(u8 *data, int size);
-int tag_isLocked(u8 *data, int size);
-int tag_setUid(u8* uid, int uidlen);
-int tag_getTag(u8 *data, int size);
-int tag_getUidFromBlock(u8 *data, int size, u8 *uid, int uidsize);
-int tag_calculatePassword(u8 *uuid, int uuidlen, u8 *pwd, int pwdlen);
-int tag_charIdDataFromTag(u8 *data, int dataLen, u8 *chardata, int chardatalen);
-int tag_getUid7(u8 *uid, int uidlen);
-int tag_getCharIdData(u8 *charData, int charDataLen);
+int tag_setTag(uint8_t *data, int datalength);
+int tag_isValid(uint8_t *data, int size);
+int tag_isLocked(uint8_t *data, int size);
+int tag_setUid(uint8_t* uid, int uidlen);
+int tag_getTag(uint8_t *data, int size);
+int tag_getUidFromBlock(uint8_t *data, int size, uint8_t *uid, int uidsize);
+int tag_calculatePassword(uint8_t *uuid, int uuidlen, uint8_t *pwd, int pwdlen);
+int tag_charIdDataFromTag(uint8_t *data, int dataLen, uint8_t *chardata, int chardatalen);
+int tag_getUid7(uint8_t *uid, int uidlen);
+int tag_getCharIdData(uint8_t *charData, int charDataLen);
 
 #ifdef __cplusplus
 }

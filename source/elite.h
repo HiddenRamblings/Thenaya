@@ -1,13 +1,5 @@
 #pragma once
 
-#include <3ds.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <stdlib.h>
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,12 +21,12 @@ extern "C" {
 #define N2_WRITE 0xA5
 #define SECTOR_SELECT 0xC2
 
-u8* elite_getBankCount();
-u8* elite_readSignature();
+uint8_t* elite_getBankCount();
+uint8_t* elite_readSignature();
 void elite_amiiboLock();
-u8* elite_amiiboPrepareUnlock();
+uint8_t* elite_amiiboPrepareUnlock();
 void elite_amiiboUnlock();
-Result elite_write(u8 *data);
+Result elite_write(uint8_t *data);
 void menuElite();
 
 #ifdef __cplusplus

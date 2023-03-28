@@ -14,6 +14,7 @@
 #include "tag.h"
 #include "nfc.h"
 #include "elite.h"
+#include "foomiibo.h"
 #include "nfc3d/amitool.h"
 #include "filepicker.h"
 #include "ui.h"
@@ -25,12 +26,12 @@
 
 #define AMIIBO_DUMP_ROOT "sdmc:/amiibo"
 
-void printbuf(char *prefix, u8* data, size_t len);
+void printbuf(char *prefix, uint8_t* data, size_t len);
 void uiShowTagInfo();
 
 int loadKeys() {
 	uiSelectLog();
-	u8 keybuffer[KEY_FILE_SIZE];
+	uint8_t keybuffer[KEY_FILE_SIZE];
 	printf("Reading key file %s\n", KEY_FILE_PATH);
 	int size = readFile(KEY_FILE_PATH, keybuffer, KEY_FILE_SIZE);
 	if (size < 0) {
@@ -63,7 +64,7 @@ void loadDump() {
 	}
 	uiSelectLog();
 	printf("File selected %s\n", filename);
-	u8 tagdata[AMIIBO_MAX_SIZE];
+	uint8_t tagdata[AMIIBO_MAX_SIZE];
 	int size = readFile(filename, tagdata, AMIIBO_MAX_SIZE);
 	if (size < 0) {
 		printf("Failed to read key file: %d\n", size);
@@ -105,7 +106,7 @@ void writeToTag() {
 	printf("\e[2J\e[H\e[0m\e[5;2HPlace tag on scanner, or press B to cancel");
 	uiUpdateStatus("Waiting...");
 	uiSelectLog();
-	u8 firstPages[NTAG_BLOCK_SIZE];
+	uint8_t firstPages[NTAG_BLOCK_SIZE];
 
 	int res = nfc_readBlock(0, firstPages, sizeof(firstPages));
 	if (res != 0) {
@@ -121,7 +122,7 @@ void writeToTag() {
 	}
 	uiUpdateStatus("Encrypting.");
 	printf("Encrypting...\n");
-	u8 data[AMIIBO_MAX_SIZE];
+	uint8_t data[AMIIBO_MAX_SIZE];
 	res = tag_getTag(data, sizeof(data));
 	if (res != TAG_ERR_OK) {
 		printf("Failed to encrypt tag: %d\n", res);
@@ -134,7 +135,7 @@ void writeToTag() {
 		printf("Write to disk failed: %d\n", res);
 	*/
 
-	u8 uid[7];
+	uint8_t uid[7];
 	res = tag_getUidFromBlock(firstPages, sizeof(firstPages), uid, sizeof(uid));
 	if (res != TAG_ERR_OK) {
 		printf("Failed to get uid: %d\n", res);
@@ -142,7 +143,7 @@ void writeToTag() {
 	}
 
 	printf("Calculating password...\n");
-	u8 pwd[NTAG_PAGE_SIZE];
+	uint8_t pwd[NTAG_PAGE_SIZE];
 	res = tag_calculatePassword(uid, sizeof(uid), pwd, sizeof(pwd));
 	if (res != TAG_ERR_OK) {
 		printf("Failed to calculate pwd: %d\n", res);
@@ -187,7 +188,7 @@ void dumpTagToFile() {
 	//todo: show title as write to tag / restore tag
 	printf("\e[2J\e[H\e[0m\e[5;2HPlace tag on scanner, or press B to cancel");
 	uiUpdateStatus("Waiting...");
-	u8 data[AMIIBO_MAX_SIZE];
+	uint8_t data[AMIIBO_MAX_SIZE];
 	uiSelectLog();
 	int res = nfc_readFull(data, sizeof(data));
 	if (res != 0) {
@@ -203,7 +204,7 @@ void dumpTagToFile() {
 	mkdir(AMIIBO_DUMP_ROOT, 0777);
 
 	char tagName[MAX_AMIIBO_NAME];
-	u8 charId[TAG_CHAR_ID_LENGTH];
+	uint8_t charId[TAG_CHAR_ID_LENGTH];
 	res = tag_charIdDataFromTag(data, sizeof(data), charId, sizeof(charId));
 	if (res != TAG_ERR_OK) {
 		snprintf(tagName, sizeof(tagName), "%02X%02X%02X%02X%02X%02X%02X", data[0], data[1], data[2], data[3], data[4], data[5], data[6]); //uid
@@ -253,13 +254,13 @@ dumpTagToFile_ERROR:
 }
 
 void uiShowTagInfo() {
-	u8 charId[TAG_CHAR_ID_LENGTH];
+	uint8_t charId[TAG_CHAR_ID_LENGTH];
 	int res = tag_getCharIdData(charId, sizeof(charId));
 	if (res != TAG_ERR_OK) {
 		printf("Could not read character id: %02x\n", res);
 		return;
 	}
-	u8 uid7[TAG_UID7_LENGTH];
+	uint8_t uid7[TAG_UID7_LENGTH];
 	res = tag_getUid7(uid7, sizeof(uid7));
 	if (res != TAG_ERR_OK) {
 		printf("Could not read uid id: %02x\n", res);
@@ -281,6 +282,33 @@ void uiShowTagInfo() {
 	return;
 }
 
+u32 showMenuExtras() {
+  uiSelectMain();
+	uiClearScreen();
+	printf("\e[2;1H X - N2 Elite.");
+	printf("\e[3;1H A - Foomiibo.");
+	printf("\e[2;26H Y - Coming Soon!");
+	printf("\e[3;26H B - Quit.");
+	uiSelectLog();
+	return uiGetKey(KEY_X | KEY_A | KEY_Y | KEY_B);
+}
+
+void menuExtras() {
+	while (aptMainLoop()) {
+		u32 kDown = showMenuExtras();
+
+		if (kDown & KEY_X) {
+			menuElite();
+		} else if ((kDown & KEY_A)) {
+			menuFoomiibo();
+		} else if (kDown & KEY_Y) {
+			break;
+		} else if (kDown & KEY_B) {
+      reset();
+    }
+	}
+}
+
 u32 showMenu() {
 	uiSelectMain();
 	uiClearScreen();
@@ -288,7 +316,7 @@ u32 showMenu() {
 	if (tag_isLoaded())
 		printf("\e[3;1H A - Write/Restore Tag.");
 	else
-		printf("\e[3;1H A - N2 Elite options.");
+		printf("\e[3;1H A - N2 Elite / Extras.");
 	printf("\e[2;26H Y - Dump Tag to file.");
 	printf("\e[3;26H B - Quit.");
 	uiSelectLog();
@@ -309,7 +337,7 @@ void menu() {
 			if (tag_isLoaded() && tag_isKeysLoaded()) {
 				writeToTag();
 			} else {
-				menuElite();
+				menuExtras();
 			}
 		} else if (kDown & KEY_Y) {
 			dumpTagToFile();

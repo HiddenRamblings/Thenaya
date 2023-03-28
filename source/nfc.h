@@ -12,9 +12,9 @@ extern "C" {
 #define NTAG_READ_PAGE_COUNT 4
 #define NTAG_BLOCK_SIZE NTAG_READ_PAGE_COUNT * NTAG_PAGE_SIZE
 
-Result nfc_readFull(u8 *data, int datalen);
-Result nfc_readBlock(int pageId, u8 *data, int datalen); //reads four pages
-Result nfc_write(u8 *data, int datalen, u8 *PWD, int PWDLength, int fullWrite);
+Result nfc_readFull(uint8_t *data, int datalen);
+Result nfc_readBlock(int pageId, uint8_t *data, int datalen); //reads four pages
+Result nfc_write(uint8_t *data, int datalen, uint8_t *PWD, int PWDLength, int fullWrite);
 int nfc_init();
 void nfc_exit();
 

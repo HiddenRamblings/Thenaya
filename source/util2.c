@@ -3,14 +3,14 @@
 #include <stdio.h>
 
 /*
-void printbuf(char *prefix, u8* data, size_t len) {
+void printbuf(char *prefix, uint8_t* data, size_t len) {
 	char bufstr[len*2 + 2];
 	memset(bufstr, 0, sizeof(bufstr));
 	for(int pos=0; pos<len; pos++)snprintf(&bufstr[pos*2], 3, "%02x", data[pos]);
 	printf("%s hex: %s\n", prefix, bufstr);
 }*/
 
-void printbuf(char *prefix, u8* data, size_t len) {
+void printbuf(char *prefix, uint8_t* data, size_t len) {
 	char bufstr[len*3 + 3];
 	memset(bufstr, 0, sizeof(bufstr));
 	for(int pos=0; pos<len; pos++) {
@@ -22,7 +22,7 @@ void printbuf(char *prefix, u8* data, size_t len) {
 	printf("%s hex: %s\n", prefix, bufstr);
 }
 
-int readFile(char *filepath, u8 *data, u32 datasize) {
+int readFile(char *filepath, uint8_t *data, u32 datasize) {
 	struct stat filestats;
 	FILE *f;
 	int readsize=0;
@@ -33,7 +33,7 @@ int readFile(char *filepath, u8 *data, u32 datasize) {
 		printf("File too large: 0x%08x.\n", (unsigned int)filestats.st_size);
 		return -2;
 	}
-	
+
 	f = fopen(filepath, "r");
 	if(f==NULL) return -3;
 
@@ -45,7 +45,7 @@ int readFile(char *filepath, u8 *data, u32 datasize) {
 	return readsize;
 }
 
-int writeFile(char *filepath, u8 *data, u32 datasize) {
+int writeFile(char *filepath, uint8_t *data, u32 datasize) {
 	FILE *f;
 	int writesize=0;
 

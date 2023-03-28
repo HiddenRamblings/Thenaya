@@ -24,7 +24,7 @@
 
 #define NTAG_215_LAST_PAGE 0x86
 
-static Result nfc_auth(u8 *PWD);
+static Result nfc_auth(uint8_t *PWD);
 
 #if !NFC_EMULATE
 
@@ -46,7 +46,7 @@ static Result DnfcGetTagState(NFC_TagState *state) {
 	return 0;
 }
 
-static Result DnfcSendTagCommand(u8* command, int cmdlen, u8* dest, int destlen, size_t *readsize, u64 timeout) {
+static Result DnfcSendTagCommand(uint8_t* command, int cmdlen, uint8_t* dest, int destlen, size_t *readsize, u64 timeout) {
 	//printbuf("cmd>", command, cmdlen);
 	svcSleepThread(200000000);
 	static int i = 0;
@@ -63,7 +63,7 @@ static void DnfcStopScanning() {
 }
 #endif
 
-Result nfc_readFull(u8 *data, int datalen) {
+Result nfc_readFull(uint8_t *data, int datalen) {
 	#if NFC_EMULATE
 
 	readFile("sdmc:/linkarcheramiibo.bin", data, datalen);
@@ -109,15 +109,15 @@ Result nfc_readFull(u8 *data, int datalen) {
 			prevstate = curstate;
 			if(curstate==NFC_TagState_InRange) {
 				uiUpdateStatus("Tag detected.");
-				u8 tagdata[AMIIBO_MAX_SIZE];
+				uint8_t tagdata[AMIIBO_MAX_SIZE];
 				memset(tagdata, 0, sizeof(tagdata));
 
 				printf("Reading tag");
 				for(int i=0x00; i<=NTAG_215_LAST_PAGE ;i+=NTAG_FAST_READ_PAGE_COUNT) {
 					uiUpdateStatus("Reading.");
 					uiUpdateProgress(i, NTAG_215_LAST_PAGE);
-					u8 cmd[] = CMD_FAST_READ(i, NTAG_FAST_READ_PAGE_COUNT);
-					u8 cmdresult[NTAG_FAST_READ_PAGE_COUNT*NTAG_PAGE_SIZE];
+					uint8_t cmd[] = CMD_FAST_READ(i, NTAG_FAST_READ_PAGE_COUNT);
+					uint8_t cmdresult[NTAG_FAST_READ_PAGE_COUNT*NTAG_PAGE_SIZE];
 					//printbuf("CMD ", cmd, sizeof(cmd));
 					memset(cmdresult, 0, sizeof(cmdresult));
 					size_t resultsize = 0;
@@ -156,7 +156,7 @@ Result nfc_readFull(u8 *data, int datalen) {
 	return ret;
 }
 
-Result nfc_readBlock(int pageId, u8 *data, int datalen) {
+Result nfc_readBlock(int pageId, uint8_t *data, int datalen) {
 	if (datalen < NTAG_BLOCK_SIZE) {
 		return -1;
 	}
@@ -199,7 +199,7 @@ Result nfc_readBlock(int pageId, u8 *data, int datalen) {
 		if(curstate!=prevstate) {
 			prevstate = curstate;
 			if(curstate==NFC_TagState_InRange) {
-				u8 cmd[] = CMD_READ(pageId);
+				uint8_t cmd[] = CMD_READ(pageId);
 				size_t resultsize = 0;
 				ret = DnfcSendTagCommand(cmd, sizeof(cmd), data, datalen, &resultsize, NFC_TIMEOUT);
 				if(R_FAILED(ret)) {
@@ -220,12 +220,12 @@ Result nfc_readBlock(int pageId, u8 *data, int datalen) {
 	return ret;
 }
 
-static Result writePage(int pageId, u8 *data) {
+static Result writePage(int pageId, uint8_t *data) {
 	//debug code:
 	//pageId = 0x06;
-	u8 cmd[] = CMD_WRITE(pageId, data);
+	uint8_t cmd[] = CMD_WRITE(pageId, data);
 	size_t resultsize = 0;
-	u8 buffer[100];
+	uint8_t buffer[100];
 	int ret = DnfcSendTagCommand(cmd, sizeof(cmd), buffer, sizeof(buffer), &resultsize, NFC_TIMEOUT);
 	if(R_FAILED(ret)) {
 		printf("Writing Tag page %d failed: 0x%08x.\n", pageId, (unsigned int)ret);
@@ -235,7 +235,7 @@ static Result writePage(int pageId, u8 *data) {
 	return ret;
 }
 
-static Result writeTag(u8 *data, u8 *PWD, u8 *PACK) {
+static Result writeTag(uint8_t *data, uint8_t *PWD, uint8_t *PACK) {
 	//write normal pages
 	int ret = 0;
 
@@ -295,21 +295,21 @@ static Result writeTag(u8 *data, u8 *PWD, u8 *PACK) {
 
 	printf(".");
 	uiUpdateProgress(step++, stepCount);
-	u8 dynamiclock[] = {0x01, 0x00, 0x0F, 0x00}; //dynamic lock bits.
+	uint8_t dynamiclock[] = {0x01, 0x00, 0x0F, 0x00}; //dynamic lock bits.
 	ret = writePage(0x82, dynamiclock);
 	if (R_FAILED(ret))
 		return ret;
 
 	printf(".");
 	uiUpdateProgress(step++, stepCount);
-	u8 config1[] = {0x00, 0x00, 0x00, 0x04}; //config
+	uint8_t config1[] = {0x00, 0x00, 0x00, 0x04}; //config
 	ret = writePage(0x83, config1);
 	if (R_FAILED(ret))
 		return ret;
 
 	printf(".");
 	uiUpdateProgress(step++, stepCount);
-	u8 config2[] = {0x5F, 0x00, 0x00, 0x00}; //config
+	uint8_t config2[] = {0x5F, 0x00, 0x00, 0x00}; //config
 	ret = writePage(0x84, config2);
 	if (R_FAILED(ret))
 		return ret;
@@ -324,7 +324,7 @@ static Result writeTag(u8 *data, u8 *PWD, u8 *PACK) {
 	return 0;
 }
 
-static Result restoreTag(u8 *data, u8 *PWD) {
+static Result restoreTag(uint8_t *data, uint8_t *PWD) {
 	//write normal pages
 	int ret = 0;
 
@@ -365,10 +365,10 @@ static Result restoreTag(u8 *data, u8 *PWD) {
 	return 0;
 }
 
-static Result nfc_auth(u8 *PWD) {
-	u8 pwdcmd[] = CMD_AUTH(PWD); //auth
+static Result nfc_auth(uint8_t *PWD) {
+	uint8_t pwdcmd[] = CMD_AUTH(PWD); //auth
 	size_t resultsize = 0;
-	u8 packres[2];
+	uint8_t packres[2];
 	int ret = DnfcSendTagCommand(pwdcmd, sizeof(pwdcmd), packres, sizeof(packres), &resultsize, NFC_TIMEOUT);
 	//printbuf("pack ", packres, sizeof(packres));
 	if(R_FAILED(ret)) {
@@ -384,7 +384,7 @@ static Result nfc_auth(u8 *PWD) {
 	return 0;
 }
 
-Result nfc_write(u8 *data, int datalen, u8 *PWD, int PWDLength, int fullWrite) {
+Result nfc_write(uint8_t *data, int datalen, uint8_t *PWD, int PWDLength, int fullWrite) {
 	if (datalen < NTAG_PAGE_SIZE * 0x81) return -1;
 	if (PWDLength != NTAG_PAGE_SIZE) return -1;
 
@@ -421,7 +421,7 @@ Result nfc_write(u8 *data, int datalen, u8 *PWD, int PWDLength, int fullWrite) {
 		if(curstate!=prevstate) {
 			prevstate = curstate;
 			if(curstate==NFC_TagState_InRange) {
-				u8 PACK[] = NTAG_PACK;
+				uint8_t PACK[] = NTAG_PACK;
 				if (fullWrite)
 					ret = writeTag(data, PWD, PACK);
 				else

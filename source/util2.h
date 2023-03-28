@@ -12,9 +12,9 @@
 extern "C" {
 #endif
 
-void printbuf(char *prefix, u8* data, size_t len);
-int readFile(char *filepath, u8 *data, u32 datasize);
-int writeFile(char *filepath, u8 *data, u32 datasize);
+void printbuf(char *prefix, uint8_t* data, size_t len);
+int readFile(char *filepath, uint8_t *data, u32 datasize);
+int writeFile(char *filepath, uint8_t *data, u32 datasize);
 void cleanFilename(char *filename);
 
 #ifdef __cplusplus

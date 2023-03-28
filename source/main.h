@@ -4,6 +4,7 @@
 extern "C" {
 #endif
 
+void menuExtras();
 int reset();
 
 #ifdef __cplusplus
