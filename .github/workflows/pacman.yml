@@ -13,31 +13,23 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: devkitpro/devkitarm
+    container: abandonedcart/devkitarm
 
     steps:
-    - uses: actions/checkout@v3
-      with:
-        repository: 3DSGuy/Project_CTR
-        path: Project_CTR
-
     - uses: actions/checkout@v3
       with:
         submodules: recursive
         path: Thenaya
 
-    - name: Install packages
-      run: |
-        sudo apt update
-        sudo apt install -y build-essential p7zip-full
+    - uses: actions/checkout@v3
+      with:
+        repository: 3DSGuy/Project_CTR
+        path: Project_CTR
 
     - name: Compile makerom
       run: |
         cd Project_CTR
         make
-        cd ../
-        cp Project_CTR/makerom/bin/makerom Thenaya/makerom
-        chmod a+x Thenaya/makerom
 
     - name: Install makerom
       run: |
