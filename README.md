@@ -48,4 +48,4 @@ Additional thanks go out to (alphabetically):
 ##
 ![Thenaya Logo](assets/thenaya_feature.png)
 ###
-*Thenaya is not affiliated, associated, authorized, endorsed by, or in any way connected with Nintendo. amiibo is a registered trademark of Nintendo. No official resources are included in this project. Files created with this project are not intended for sale or distribution. This project is for educational and archival purposes only.*
+*Thenaya is not affiliated, authorized, sponsored, endorsed, or in any way connected with Nintendo Co., Ltd or its subsidiaries. amiibo is a registered trademark of Nintendo of America Inc. No licensed resources are owned. Files created with or resulting from Thenaya are not intended for sale or distribution. Thenaya is for educational and archival purposes only.*
