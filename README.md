@@ -1,7 +1,13 @@
 # Thenaya - TagMo for 3ds
 
-### Restoration of this project is currently WIP. Please be patient.
-
+<p align="center">
+  <a href="https://discord.gg/uc2YheD4CK" target="_blank">
+    <img src="https://img.shields.io/discord/1109571129242296320.svg?label=&logo=discord&logoColor=ffffff&color=7289DA&labelColor=6A5ACD">
+  </a>
+  <a href="https://github.com/HiddenRamblings/Thenaya/actions/workflows/pacman.yml" target="_blank">
+    <img src="https://github.com/HiddenRamblings/Thenaya/actions/workflows/pacman.yml/badge.svg">
+  </a>
+</p>
 
 ## Thenaya Install
 
