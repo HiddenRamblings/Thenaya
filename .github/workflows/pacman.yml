@@ -56,7 +56,7 @@ jobs:
           Thenaya/output/Thenaya_*.zip
           Thenaya/output/Thenaya.cia
 
-    - uses: dciborow/action-github-releases@v1.0.1
+    - uses: 8bitDream/action-github-releases@v1.0.0
       if: github.event_name != 'pull_request'
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
