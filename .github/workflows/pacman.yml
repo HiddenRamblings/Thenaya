@@ -11,7 +11,6 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     container: abandonedcart/devkitarm
 
@@ -66,3 +65,10 @@ jobs:
         files: |
           Thenaya/output/Thenaya_*.zip
           Thenaya/output/Thenaya.cia
+
+    - name: Discord webhook notification
+      uses: distributhor/workflow-webhook@v3.0.4
+      env:
+        webhook_type: 'json-extended'
+        webhook_url: 'https://discord.com/api/webhooks/1109893889340485632/Vd-DqFhZWlfu86C8UqNxv8Z47WHm8aJC9eWZcu7ggC0lnFboeOHS9hUNdO6J2nowPsmP/github'
+        data: '{ "download": "https://github.com/HiddenRamblings/Thenaya/releases/download/latest/Thenaya.cia" }'
