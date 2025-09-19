@@ -29,7 +29,7 @@ jobs:
         GIT_HASH=$(git rev-parse --short HEAD)
         echo "GIT_HASH=${GIT_HASH}" >> $GITHUB_ENV
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: Thenaya-${{ env.GIT_HASH }}
         path: |
