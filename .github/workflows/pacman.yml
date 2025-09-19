@@ -48,6 +48,7 @@ jobs:
           output/Thenaya.cia
 
     - name: Discord webhook notification
+      if: github.event_name != 'pull_request'
       uses: distributhor/workflow-webhook@v3.0.4
       env:
         webhook_type: 'json-extended'
