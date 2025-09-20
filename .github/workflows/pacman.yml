@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -49,6 +53,7 @@ jobs:
 
     - name: Discord webhook notification
       if: github.event_name != 'pull_request'
+      continue-on-error: true
       uses: distributhor/workflow-webhook@v3.0.4
       env:
         webhook_type: 'json-extended'
